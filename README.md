@@ -1,0 +1,2 @@
+AeroFusionXR is a flagship, zero-loophole, production‑grade monorepo demonstrating a fully hardened implementation of generative AI and immersive XR for premium airline experiences. It encompasses end-to-end strategy, architecture, infrastructure, microservices, frontend applications, AI pipelines, analytics, DevOps automation, and SRE runbooks — all designed to meet the highest standards of reliability, security, and regulatory compliance.
+
