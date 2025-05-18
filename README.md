@@ -4,6 +4,7 @@
 ### ✈️ Key Features
 
 * **AR Destination Previews**: Photorealistic 3D landmarks with real‑time lighting & cultural context overlays.
+* **Responsible AI Governance & Guardrails**: Built‑in bias detection, hallucination mitigation, and compliance with AI Ethics, GDPR, and XRSI standards.
 * **GenAI Concierge**: Multimodal LLM (text, voice, image) for flight info, itineraries, and personalized recommendations.
 * **AR Baggage ETA**: Real‑time luggage tracking with CV pipeline and QR fallback.
 * **Indoor Wayfinding**: AR overlays guiding passengers across terminals via geo‑anchors.
