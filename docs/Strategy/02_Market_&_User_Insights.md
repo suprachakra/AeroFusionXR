@@ -1,12 +1,12 @@
-# 02 Market & User Insights
+## Market & User Insights
 
-## Key Industry Trends  
+### Key Industry Trends  
 1. **Immersive XR in Travel**: + 18 % CAGR as airports adopt AR for contactless navigation & retail engagement  
 2. **AI-First Self-Service**: Virtual assistants reducing queue times by up to 40 %  
 3. **Sustainability Demand**: 72 % of travelers prioritize eco-friendly services  
 4. **Data Monetization**: Real-time analytics unlocking USD 25 K+/month per terminal in insights revenue
 
-## Primary Personas  
+### Primary Personas  
 
 | Persona                | Context                            | Needs                                            | Challenges                              | Impact (Projected)                     |
 |------------------------|------------------------------------|--------------------------------------------------|-----------------------------------------|----------------------------------------|
@@ -17,7 +17,7 @@
 | **Retail Manager**     | Duty-free operations               | Engaging AR commerce insights; dwell analytics   | Static displays; low footfall           | + 12 % sales; + 20 % dwell time        |
 | **Flight Ops Lead**    | Oversees flight dispatch           | Real-time boarding & turnaround analytics        | Uncoordinated ground ops; delays        | + 5 % turnaround speed; − 10 % delays   |
 
-## Market Sizing & Gaps  
+### Market Sizing & Gaps  
 
 | Segment                             | TAM / CAGR                   | Aerofusion XR Advantage                               |
 |-------------------------------------|------------------------------|-------------------------------------------------------|
@@ -26,7 +26,7 @@
 | Hybrid-Cloud Edge Deployments       | USD 900 M                     | On-prem kiosks + regional cloud orchestration         |
 | Sustainability Engagement Tools     | USD 650 M                     | Interactive carbon-offset + loyalty integration       |
 
-## Market Gaps & Solutions  
+### Market Gaps & Solutions  
 
 | Gap                                    | Aerofusion XR Solution                                                                              |
 |----------------------------------------|----------------------------------------------------------------------------------------------------|
@@ -36,7 +36,7 @@
 | Limited sustainability storytelling    | Real-time carbon analytics + eco-badges backed by verified offset partners                         |
 | Edge-latency in high-traffic terminals | Hybrid-cloud edge nodes and on-prem kiosks ensure < 50 ms in-terminal response times                |
 
-## Revenue Model & Expansion  
+### Revenue Model & Expansion  
 
 - **Platform License**  
   - USD 150 K/terminal/year  
@@ -47,12 +47,5 @@
 - **Professional Services**  
   - Custom integration & UX workshops at USD 200 K/project  
 
-**Expansion Roadmap**  
-| Phase           | Regions & Verticals                                                   |
-|-----------------|-----------------------------------------------------------------------|
-| **Year 1**      | Top 10 global hubs (Dubai, Heathrow, Changi…)                         |
-| **Year 2**      | Regional airports (APAC, EMEA) + ground-transport integration         |
-| **Year 3+**     | Adjacent venues (museums, stadiums) & hospitality ecosystems          |
-
-## Conclusion  
-Aerofusion XR addresses critical market gaps—melding proactive AI, immersive AR, and sustainability storytelling—to capture high-growth segments, drive ancillary revenue, and establish a scalable, extensible platform for future travel & retail ecosystems.
+### Conclusion  
+AerofusionXR addresses critical market gaps—melding proactive AI, immersive AR, and sustainability storytelling—to capture high-growth segments, drive ancillary revenue, and establish a scalable, extensible platform for future travel & retail ecosystems.
