@@ -1,0 +1,22 @@
+name: "Observability Definition Checks"
+
+on:
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '30 3 * * *'  # daily at 03:30 UTC
+
+jobs:
+  verify-dashboards:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Validate Prometheus rules
+        run: |
+          promtool check rules infra/monitoring/prometheus.rules.yml
+
+      - name: Validate Grafana dashboards
+        run: |
+          python infra/scripts/validate_grafana.py \
+            --dashboards infra/monitoring/grafana_dashboards/
