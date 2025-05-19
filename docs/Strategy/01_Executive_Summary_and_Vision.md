@@ -1,4 +1,4 @@
-## 01 Executive Summary & Vision
+## Executive Summary & Vision
 
 ### Overview  
 Aerofusion XR is a unified **Generative AI + Immersive XR** platform engineered to transform every facet of the airport journey—seamlessly blending real-time intelligence with high-fidelity AR to:
