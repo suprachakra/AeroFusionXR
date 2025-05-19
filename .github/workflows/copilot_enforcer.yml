@@ -1,0 +1,17 @@
+name: "Copilot Policy Enforcement"
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  enforce-copilot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run Copilot Usage Audit
+        run: |
+          # Custom script that flags undesired Copilot patterns
+          scripts/enforce_copilot_policy.sh
