@@ -1,0 +1,21 @@
+name: "AI Act Readiness Check"
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  validate-ai-act:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: pip install -r infra/ci-requirements.txt
+
+      - name: Run AI Act policy validator
+        run: |
+          python infra/scripts/validate_ai_act_compliance.py \
+            --config docs/compliance/AI-Act.md
