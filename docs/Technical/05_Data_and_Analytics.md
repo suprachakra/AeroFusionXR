@@ -1,4 +1,4 @@
-**At-a-Glance:** Comprehensive end-to-end data lifecycle: ingestion from multiple sources, granular ETL stages, robust QA, multi-layered BI insights, and immutable provenance—all with self-healing and alternative pipelines.
+Comprehensive end-to-end data lifecycle: ingestion from multiple sources, granular ETL stages, robust QA, multi-layered BI insights, and immutable provenance—all with self-healing and alternative pipelines.
 
 ---
 
@@ -20,11 +20,11 @@ flowchart TB
     B[Web UI] ---> IngestAPI
     C[Partner APIs] --> IngestAPI
     D[Edge Kiosks] --> EdgeGateway
-    E[System Logs] --> Log Collector
+    E[System Logs] --> LogCollector
   end
   IngestAPI -->|Kafka| RawZone[S3 Ingestion Zone]
   EdgeGateway -->|Kafka| RawZone
-  Log Collector -->|Filebeat| RawZone
+  LogCollector -->|Filebeat| RawZone
 
   subgraph ETL Microservices
     RawZone --> ValidateService
