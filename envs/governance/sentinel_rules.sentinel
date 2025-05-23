@@ -1,0 +1,20 @@
+import "tfplan/v2" as tfplan
+import "tfconfig/v2" as tfconfig
+
+# Rule: no publicly open security groups
+
+violations = rule {
+resources := tfplan.resources
+sg := resources.aws\_security\_group
+sg.instances\[*].planned.ingress\[*] as ingress
+ingress.values.cidr\_blocks contains "0.0.0.0/0"
+}
+
+# Rule: tag must include Owner and Environment
+
+compliance = rule {
+config := tfconfig.module
+tags := config.variables.tags.default
+tags\["Owner"] != ""
+tags\["Environment"] != ""
+}
