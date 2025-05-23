@@ -17,5 +17,3 @@ task_memory     = "512"
 container_defs  = file("../k8s/manifests/dev-container-defs.json")
 desired_count   = 1
 lambda_configs  = { name="dev-hook", role_arn="arn:aws:iam::123456789012:role/dev-lambda", handler="index.handler", runtime="python3.9", package="../lambda/dev-hook.zip", memory=128, timeout=30, env_vars={ENV="dev"} }
-
-envs/staging.tfvars
