@@ -1,0 +1,1 @@
+{ "name":"commerce-service","version":"1.0.0","main":"src/index.js","scripts":{"start":"node src/index.js","test":"jest"},"dependencies":{"axios":"^1.3.0","express":"^4.18.2","morgan":"^1.10.0"},"devDependencies":{"jest":"^29.5.0","supertest":"^6.3.3"} }
