@@ -72,17 +72,13 @@ pip install -r services/ai-concierge/requirements.txt
 2. **Web**:
 
    ```bash
+   yarn --cwd clients/web dev
    ```
-
-yarn --cwd clients/web dev
-
-````
 3. **Mobile**:
 ```bash
 yarn --cwd clients/mobile start
 # Run on simulator or device
 ````
-
 4. **XR Demos**:
 
    * Unity: Open `clients/xr/unity/` in Unity Editor and press Play.
