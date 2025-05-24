@@ -107,6 +107,7 @@ AeroFusionXR/
 ---
 
 ### 🗺️ Roadmap
+[2 Year Roadmap](https://github.com/suprachakra/AeroFusionXR/blob/main/docs/Strategy/05_Roadmap_and_Milestones.md)
 
 | Phase | Timeline     | Focus                                                                        |
 | ----- | ------------ | ---------------------------------------------------------------------------- |
