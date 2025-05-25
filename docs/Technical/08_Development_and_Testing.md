@@ -24,3 +24,26 @@ Simplified, granular SLO runbook, mandatory tests, and self-healing CI/CD.
 * **Block on Failures:** tests, security, coverage.
 * **Auto-Rollback:** on canary failure.
 * **Dependency Updates:** auto-merge minor patches; alert on major.
+
+### 4. Test-Driven Development (TDD)
+
+* **Unit Tests**: 100% coverage enforced via CI
+* **Integration Tests**: Service-to-service contracts validated
+* **Mocking**: Use WireMock and pytest fixtures for external deps
+
+### 5. Security Testing
+
+* **SAST**: CodeQL scans on every PR
+* **DAST**: OWASP ZAP nightly scans
+* **Dependency Scans**: Snyk alerts for vulnerable packages
+
+### 6. Adversarial & Chaos
+
+* **Adversarial Testing**: Prompt injections, schema fuzzers
+* **Chaos Engineering**: Gremlin scripts for network latency, pod killing
+
+## 4. Coverage & Quality Gates
+
+* **Coverage**: Minimum 90% for new code
+* **Linting**: ESLint + Flake8 rules
+* **Contract Tests**: Pact-based consumer/provider checks
