@@ -1,4 +1,5 @@
 fastapi==0.95.0
 uvicorn[standard]==0.22.0
-opencv-python==4.8.0
-numpy==1.25.0
+opencv-python-headless==4.7.0
+pydantic==2.5.1
+pytest==7.4.0
