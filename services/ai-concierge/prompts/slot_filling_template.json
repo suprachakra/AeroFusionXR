@@ -1,0 +1,4 @@
+{
+  "slots": ["flight_number","date","time"],
+  "template": "Please provide your {flight_number} for {date} at {time}."
+}
