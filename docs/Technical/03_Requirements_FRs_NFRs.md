@@ -88,16 +88,17 @@ This document enumerates all **Functional Requirements (FR)**, **Non-Functional 
 
 Each Epic is now mapped to clearly distinct Functional Requirements (FRs) and Non-Functional Requirements (NFRs), ensuring no broad or compound requirements hide gaps.
 
-| Epic | Epics Name                   | Key FRs                                  | Key NFRs         |
-| ---- | ---------------------------- | ---------------------------------------- | ---------------- |
-| E1   | GenAI Concierge Core         | FR1a, FR1b, FR1c, FR2, FR3               | NFR2, NFR4, NFR5 |
-| E2   | AR Wayfinding Engine         | FR4, FR16                                | NFR2, NFR3, NFR5 |
-| E3   | Baggage ETA Tracking         | FR5                                      | NFR2, NFR5, NFR7 |
-| E4   | AR Commerce Platform         | FR6                                      | NFR2, NFR10      |
-| E5   | Sustainability Module        | FR7                                      | NFR6, NFR8       |
-| E6   | Hybrid-Cloud Edge Deploy     | FR11                                     | NFR1, NFR7       |
-| E7   | Analytics & Monitoring       | FR10, FR12                               | NFR5, NFR9       |
-| E8   | Loyalty & Gamification       | FR8                                      | NFR8, NFR9       |
-| E9   | Admin & Ops Portal           | FR12, FR23                               | NFR5, NFR9       |
-| E10  | Compliance & Audit Dashboard | FR13, FR14                               | NFR4, NFR6       |
-| All  | Cross-Cutting Needs          | FR15, FR17, FR18, FR19, FR20, FR21, FR22 | NFR11, NFR12     |
+| Epics Name | Key FRs                   | Key NFRs                                  |
+| ---------- | ------------------------- | ----------------------------------------- |
+| **E1: GenAI Concierge Core**          | FR1a, FR1b, FR1c, FR2, FR3, **FR26**, **FR27**, **FR28**, **FR34**                                                                                     | NFR2, NFR4, NFR5, **NFR16**, **NFR22** |
+| **E2: AR Wayfinding Engine**          | FR4, FR16, **FR26**, **FR27**, **FR28**, **FR33**                                                                                                      | NFR2, NFR3, NFR5, **NFR21**            |
+| **E3: Baggage ETA Tracking**          | FR5, **FR26**, **FR27**, **FR28**                                                                                                                      | NFR2, NFR5, NFR7                       |
+| **E4: AR Commerce Platform**          | FR6, **FR31**, **FR32**, **FR26**, **FR27**, **FR28**                                                                                                  | NFR2, NFR10, **NFR19**, **NFR20**      |
+| **E5: Sustainability Module**         | FR7                                                                                                                                                    | NFR6, NFR8                             |
+| **E6: Hybrid-Cloud Edge Deploy**      | FR11, **FR29**, **FR30**                                                                                                                               | NFR1, NFR7                             |
+| **E7: Analytics & Monitoring**        | FR10, FR12, **FR39**, **FR40**                                                                                                                         | NFR5, NFR9, **NFR25**, **NFR26**       |
+| **E8: Loyalty & Gamification**        | FR8                                                                                                                                                    | NFR8, NFR9                             |
+| **E9: Admin & Ops Portal**            | FR12, FR23, **FR24**, **FR25**                                                                                                                         | NFR5, NFR9, NFR13, NFR14               |
+| **E10: Compliance & Audit Dashboard** | FR13, FR14                                                                                                                                             | NFR4, NFR6                             |
+| **All (Cross-Cutting)**               | FR15, FR17, FR18, FR19, FR20, FR21, FR22, **FR26**, **FR27**, **FR28**, **FR33**, **FR34**, **FR35**, **FR36**, **FR37**, **FR38**, **FR39**, **FR40** | NFR11–NFR26                            |
+
