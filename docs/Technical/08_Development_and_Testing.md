@@ -42,7 +42,7 @@ Simplified, granular SLO runbook, mandatory tests, and self-healing CI/CD.
 * **Adversarial Testing**: Prompt injections, schema fuzzers
 * **Chaos Engineering**: Gremlin scripts for network latency, pod killing
 
-## 4. Coverage & Quality Gates
+### 7. Coverage & Quality Gates
 
 * **Coverage**: Minimum 90% for new code
 * **Linting**: ESLint + Flake8 rules
