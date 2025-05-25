@@ -56,3 +56,14 @@
 * **Multi-modal fusion** for image/text/voice.
 * **Edge-optimized TinyLlama** for kiosk inference.
 
+### 2. Model Cards
+
+| Model Name      | Version | Purpose                  | Metrics (Acc/F1) | Bias Mitigation                |
+| --------------- | ------- | ------------------------ | ---------------- | ------------------------------ |
+| `flight-status` | v1.2    | Classify flight statuses | 98% / 0.96       | Class-balanced sampling        |
+| `intent-router` | v3.0    | Route user intents       | 95% / 0.92       | Adversarial debias fine-tuning |
+
+### 3. Bias & Fairness
+
+* Quarterly bias audit reports in `docs/ethics/`
+* Automated evaluation: `pytest --bias-check`
