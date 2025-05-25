@@ -11,11 +11,17 @@ Resilient CI/CD with GitOps-based delivery, canary + blue-green deployments, mul
 | Sign        | Cosign, Rekor         | Sigstore chain verified                      |
 | Deploy      | ArgoCD                | Canary by default; failover fallback enabled |
 
+* **GitHub Actions**: Multi-phase builds (lint, test, build, deploy)
+* **Canary & Blue-Green**: ArgoCD App-of-Apps patterns
+* **Rollback**: Automated health-check rollback scripts
+
 ### 2. IaC Modules
 
 * Terraform & Helm managed by **environment-specific Git branches**
 * Resources split by domain: compute, network, observability, LLM infra
 * Automatic drift detection via OpenPolicyAgent (OPA) policies
+* **Terraform**: Modules, workspaces, guardrails (OPA/Sentinel)
+* **Helm/Kustomize**: Environment overlays, secrets encryption
 
 ### 3. Deployment Strategies
 
@@ -30,4 +36,6 @@ Resilient CI/CD with GitOps-based delivery, canary + blue-green deployments, mul
 * Canary SLO failure → auto-revert within 90s
 * Rollback command enabled in **admin dashboard**
 * **DR Drills** quarterly: simulate API outage, data corruption, node loss
+* **DR Plan**: RTO <15 m, RPO <5 m; quarterly drills
+* **Backups**: EBS snapshots, RDS automated backups
 * Recovery Time Objective (RTO) < 15 min; Recovery Point Objective (RPO) = 0
