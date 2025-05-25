@@ -45,6 +45,9 @@ flowchart LR
 | AR Session Injection          | Monthly   | BurpSuite/ZAP        | <10 min      |
 | LLM Jailbreak (Prompt Attack) | Bi-weekly | Adversarial triggers | <5 min       |
 
+* Monthly breach simulations (BurpSuite/ZAP)
+* DPIA automated in `scripts/dpia_pipeline.sh`
+
 ### 5. Compliance Traceability Matrix
 
 | Regulation | Compliance Feature                  | Logs/Artifacts                           |
