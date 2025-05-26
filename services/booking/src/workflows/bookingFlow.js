@@ -1,8 +1,7 @@
-export default {
-  execute: async (bookingRequest) => {
-    // Call inventory, payment, loyalty microservices
-    const payment = await paymentService.charge(bookingRequest);
-    // ...additional business logic
-    return { success: true, reference: payment.reference };
-  }
-};
+import reserveInventory from './paymentStep.js';
+import chargePayment from './loyaltyStep.js';
+
+export async function runBookingFlow(data) {
+  const reservation = await reserveInventory(data);
+  const payment = await chargePayment(reservation);
+  return { reservation, payment };
