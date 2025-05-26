@@ -5,6 +5,9 @@ import morgan from 'morgan';
 
 const app = express();
 app.use(express.json());
+app.use(idempotency);
+app.use(validator);
+app.use('/booking', bookingRouter);
 app.use(morgan('combined'));
 
 app.post('/book', async (req, res, next) => {
