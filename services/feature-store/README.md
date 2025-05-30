@@ -1,3 +1,20 @@
+## Feature Store Service
+
+Provides ingestion and retrieval of feature vectors via Redis and optional Postgres migration tables.
+
+### Endpoints
+- `POST /features/ingest`: Ingest a feature JSON payload
+- `GET  /features/{id}`: Retrieve feature by ID
+- `GET  /health`: Health check
+
+### Setup
+1. `docker-compose up -d redis`
+2. `uvicorn app:app --reload`
+
+###  # Tests
+`pytest --cov`
+
+### Structure
 ```
 feature-store/
 ├── app.py                     # FastAPI app, routers mounting, startup/shutdown hooks
