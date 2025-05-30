@@ -1,19 +1,18 @@
-from fastapi import APIRouter, HTTPException, Depends
-from models import FeatureIn, FeatureOut
-from services.feature_service import FeatureService
+from fastapi import APIRouter, HTTPException
+from services.feature_service import ingest_feature, get_feature
 
 router = APIRouter()
 
-@router.post("/", response_model=FeatureOut)
-async def ingest_feature(payload: FeatureIn):
-    try:
-        return await FeatureService.ingest(payload)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+@router.post("/ingest")
+async def ingest(payload: dict):
+    success = await ingest_feature(payload)
+    if not success:
+        raise HTTPException(status_code=500, detail="Ingest failed")
+    return {"status": "ingested"}
 
-@router.get("/{key}", response_model=FeatureOut)
-async def get_feature(key: str):
-    result = await FeatureService.retrieve(key)
-    if not result:
-        raise HTTPException(404, "Feature not found")
-    return result
+@router.get("/{feature_id}")
+async def read(feature_id: str):
+    feature = await get_feature(feature_id)
+    if not feature:
+        raise HTTPException(status_code=404, detail="Feature not found")
+    return feature
