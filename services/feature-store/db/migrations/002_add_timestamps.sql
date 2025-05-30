@@ -1,0 +1,2 @@
+ALTER TABLE features
+ADD COLUMN updated_at TIMESTAMP;
