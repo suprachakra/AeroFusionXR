@@ -6,3 +6,8 @@ class FlightRequest(BaseModel):
 class FlightResponse(BaseModel):
     flight_number: str
     status: str
+
+class FlightStatus(BaseModel):
+    airline: str
+    flight_no: str
+    status: str
