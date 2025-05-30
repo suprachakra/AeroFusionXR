@@ -1,10 +1,17 @@
 from fastapi import FastAPI
-from routers.feature_router import router
-import logging
+from routers.feature_router import router as feature_router
+from utils.logger import setup_logging
 
-logging.basicConfig(level=logging.INFO)
+setup_logging()
 app = FastAPI(title="Feature Store", version="1.0.0")
-app.include_router(router, prefix="/features")
+
+@app.on_event("startup")
+async def startup():
+    # e.g. create DB pool, warm cache
+    pass
+
+app.include_router(feature_router, prefix="/features", tags=["features"])
 
 @app.get("/health")
-def health(): return {"status":"ok"}
+async def health():
+    return {"status": "ok"}
