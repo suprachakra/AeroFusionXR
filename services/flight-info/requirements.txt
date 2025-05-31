@@ -1,0 +1,130 @@
+# AeroFusionXR Flight Information Service - Python Dependencies
+# ================================================================
+# 
+# Production-ready dependencies for enterprise flight information service
+# with real-time tracking, predictive analytics, and multi-vendor integration.
+
+# ================================
+# CORE FRAMEWORK & WEB SERVER
+# ================================
+fastapi==0.104.1                    # Modern, fast web framework for building APIs
+uvicorn[standard]==0.24.0           # ASGI server implementation
+pydantic==2.5.2                     # Data validation using Python type hints
+python-multipart==0.0.6             # Form data parsing support
+
+# ================================
+# ASYNC & CONCURRENCY
+# ================================
+aiofiles==23.2.1                    # Async file operations
+aioredis==2.0.1                     # Async Redis client
+asyncpg==0.29.0                     # Async PostgreSQL driver
+httpx==0.25.2                       # Async HTTP client
+asyncio-mqtt==0.16.1                # Async MQTT client
+
+# ================================
+# DATABASE & DATA STORAGE
+# ================================
+motor==3.3.2                        # Async MongoDB driver
+psycopg2-binary==2.9.9              # PostgreSQL adapter
+sqlalchemy==2.0.23                  # SQL toolkit and ORM
+alembic==1.13.1                     # Database migration tool
+redis==5.0.1                        # Redis Python client
+
+# ================================
+# MACHINE LEARNING & ANALYTICS
+# ================================
+scikit-learn==1.3.2                 # Machine learning library
+numpy==1.24.4                       # Numerical computing
+pandas==2.1.4                       # Data manipulation and analysis
+joblib==1.3.2                       # Model persistence and parallel computing
+scipy==1.11.4                       # Scientific computing
+
+# ================================
+# OBSERVABILITY & MONITORING
+# ================================
+opentelemetry-api==1.21.0           # OpenTelemetry API
+opentelemetry-sdk==1.21.0           # OpenTelemetry SDK
+opentelemetry-exporter-otlp==1.21.0 # OTLP exporter for traces
+opentelemetry-instrumentation-fastapi==0.42b0  # FastAPI auto-instrumentation
+opentelemetry-instrumentation-httpx==0.42b0    # HTTPX auto-instrumentation
+opentelemetry-instrumentation-asyncpg==0.42b0  # AsyncPG auto-instrumentation
+opentelemetry-instrumentation-redis==0.42b0    # Redis auto-instrumentation
+prometheus-client==0.19.0           # Prometheus metrics client
+structlog==23.2.0                   # Structured logging
+
+# ================================
+# CONFIGURATION & ENVIRONMENT
+# ================================
+python-dotenv==1.0.0                # Load environment variables from .env
+pydantic-settings==2.1.0            # Settings management with Pydantic
+click==8.1.7                        # Command line interface creation
+
+# ================================
+# SECURITY & AUTHENTICATION
+# ================================
+python-jose[cryptography]==3.3.0    # JWT token handling
+passlib[bcrypt]==1.7.4              # Password hashing
+cryptography==41.0.8                # Cryptographic recipes and primitives
+
+# ================================
+# UTILITIES & HELPERS
+# ================================
+python-dateutil==2.8.2              # Date/time utilities
+pytz==2023.3                        # Timezone definitions
+uuid==1.30                          # UUID generation
+validators==0.22.0                  # Data validation
+python-slugify==8.0.1               # String slugification
+
+# ================================
+# DEVELOPMENT & TESTING
+# ================================
+pytest==7.4.3                       # Testing framework
+pytest-asyncio==0.21.1              # Async testing support
+pytest-cov==4.1.0                   # Coverage reporting
+pytest-mock==3.12.0                 # Mock object library
+faker==20.1.0                       # Fake data generation
+
+# ================================
+# CODE QUALITY & FORMATTING
+# ================================
+black==23.11.0                      # Code formatter
+isort==5.12.0                       # Import sorter
+flake8==6.1.0                       # Linting tool
+mypy==1.7.1                         # Static type checker
+
+# ================================
+# DATA FORMATS & SERIALIZATION
+# ================================
+orjson==3.9.10                      # Fast JSON library
+msgpack==1.0.7                      # MessagePack serialization
+pyyaml==6.0.1                       # YAML parser
+
+# ================================
+# TIMEZONE & INTERNATIONALIZATION
+# ================================
+babel==2.13.1                       # Internationalization utilities
+
+# ================================
+# PERFORMANCE & OPTIMIZATION
+# ================================
+cachetools==5.3.2                   # Caching utilities
+
+# ================================
+# CLOUD & DEPLOYMENT
+# ================================
+boto3==1.34.0                       # AWS SDK
+kubernetes==28.1.0                  # Kubernetes Python client
+
+# ================================
+# BACKGROUND TASKS
+# ================================
+celery==5.3.4                       # Distributed task queue (optional)
+
+# ================================
+# HEALTH CHECKS & MONITORING
+# ================================
+psutil==5.9.6                       # System and process utilities
+
+# Note: Pin versions for production stability
+# Update regularly for security patches
+# Use virtual environments for isolation 

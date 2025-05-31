@@ -1,0 +1,371 @@
+openapi: 3.0.3
+info:
+  title: AI Concierge API
+  description: |
+    AI Concierge service for AeroFusionXR platform.
+    
+    This service provides:
+    * Multimodal query processing (text, voice, image)
+    * Intent classification and routing
+    * Personalized responses with context awareness
+    * Bias detection and mitigation
+    * Enterprise-grade observability
+  version: 1.0.0
+  contact:
+    name: AeroFusionXR Team
+    email: support@aerofusionxr.com
+  license:
+    name: Proprietary
+    
+servers:
+  - url: https://api.aerofusionxr.com/v1
+    description: Production server
+  - url: https://staging-api.aerofusionxr.com/v1
+    description: Staging server
+  - url: http://localhost:8000/v1
+    description: Local development
+
+security:
+  - BearerAuth: []
+  - ApiKeyAuth: []
+
+paths:
+  /query:
+    post:
+      summary: Process multimodal query
+      description: Process text, voice, or image query with automatic modality fallback
+      operationId: processQuery
+      tags:
+        - Query Processing
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  description: Text query
+                voice:
+                  type: string
+                  format: binary
+                  description: Voice file (WAV, MP3)
+                image:
+                  type: string
+                  format: binary
+                  description: Image file (JPEG, PNG)
+                session_id:
+                  type: string
+                  description: Session identifier for context
+              anyOf:
+                - required: [text]
+                - required: [voice]
+                - required: [image]
+      responses:
+        '200':
+          description: Query processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /intent:
+    post:
+      summary: Classify and route intent
+      description: Classify query intent and route to appropriate service
+      operationId: routeIntent
+      tags:
+        - Intent Routing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IntentRequest'
+      responses:
+        '200':
+          description: Intent routed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntentResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /context/{session_id}:
+    get:
+      summary: Get session context
+      description: Retrieve conversation context for a session
+      operationId: getContext
+      tags:
+        - Context Management
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Context retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContextResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /health:
+    get:
+      summary: Health check
+      description: Check service health status
+      operationId: checkHealth
+      tags:
+        - Monitoring
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /metrics:
+    get:
+      summary: Prometheus metrics
+      description: Expose Prometheus metrics
+      operationId: getMetrics
+      tags:
+        - Monitoring
+      responses:
+        '200':
+          description: Metrics in Prometheus format
+          content:
+            text/plain:
+              schema:
+                type: string
+
+components:
+  schemas:
+    QueryResponse:
+      type: object
+      properties:
+        result:
+          type: string
+          description: Query result
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Confidence score
+        modality_used:
+          type: string
+          enum: [text, voice, text_from_voice, image, qr_code]
+          description: Modality used for processing
+        sentiment:
+          type: object
+          properties:
+            positive:
+              type: number
+              format: float
+            neutral:
+              type: number
+              format: float
+            negative:
+              type: number
+              format: float
+        uncertain:
+          type: boolean
+          description: Whether the result is uncertain
+      required:
+        - result
+        - confidence
+        - modality_used
+        - uncertain
+
+    IntentRequest:
+      type: object
+      properties:
+        query:
+          type: string
+          description: User query
+        context:
+          type: object
+          description: Additional context
+      required:
+        - query
+
+    IntentResponse:
+      type: object
+      properties:
+        intent:
+          type: string
+          description: Classified intent
+        confidence:
+          type: number
+          format: float
+        action:
+          type: string
+          description: Action taken
+        result:
+          type: object
+          description: Action result
+      required:
+        - intent
+        - confidence
+        - action
+
+    ContextResponse:
+      type: object
+      properties:
+        session_id:
+          type: string
+        interactions:
+          type: array
+          items:
+            type: object
+            properties:
+              timestamp:
+                type: string
+                format: date-time
+              modality:
+                type: string
+              result:
+                type: string
+              sentiment:
+                type: object
+      required:
+        - session_id
+        - interactions
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded]
+        version:
+          type: string
+        uptime:
+          type: number
+        dependencies:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              status:
+                type: string
+              latency:
+                type: number
+      required:
+        - status
+        - version
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+      required:
+        - code
+        - message
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    TooManyRequests:
+      description: Rate limit exceeded
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    ServiceUnavailable:
+      description: Service temporarily unavailable
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authentication
+
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication
+
+tags:
+  - name: Query Processing
+    description: Endpoints for processing multimodal queries
+  - name: Intent Routing
+    description: Endpoints for intent classification and routing
+  - name: Context Management
+    description: Endpoints for managing conversation context
+  - name: Monitoring
+    description: Endpoints for health checks and metrics 
