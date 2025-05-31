@@ -1,0 +1,374 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "AeroFusionXR Baggage Tracker",
+    "tags": ["aerofusion", "baggage", "tracking", "iot", "rfid"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Baggage Tracking Overview",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 24, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(baggage_total_tracked)",
+            "legendFormat": "Total Tracked"
+          },
+          {
+            "expr": "sum(baggage_in_transit)",
+            "legendFormat": "In Transit"
+          },
+          {
+            "expr": "sum(baggage_delivered)",
+            "legendFormat": "Delivered Today"
+          },
+          {
+            "expr": "sum(baggage_lost_or_delayed)",
+            "legendFormat": "Lost/Delayed"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "custom": {"displayMode": "list", "orientation": "horizontal"},
+            "mappings": [],
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 50},
+                {"color": "red", "value": 100}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Baggage Status Distribution",
+        "type": "piechart",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+        "targets": [
+          {
+            "expr": "sum(baggage_count_by_status) by (status)",
+            "legendFormat": "{{status}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "custom": {
+              "hideFrom": {"legend": false, "tooltip": false, "vis": false}
+            },
+            "mappings": [
+              {"options": {"checked_in": {"color": "blue", "text": "Checked In"}}, "type": "value"},
+              {"options": {"in_transit": {"color": "orange", "text": "In Transit"}}, "type": "value"},
+              {"options": {"at_gate": {"color": "green", "text": "At Gate"}}, "type": "value"},
+              {"options": {"delivered": {"color": "light-green", "text": "Delivered"}}, "type": "value"},
+              {"options": {"delayed": {"color": "yellow", "text": "Delayed"}}, "type": "value"},
+              {"options": {"lost": {"color": "red", "text": "Lost"}}, "type": "value"}
+            ]
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"],
+            "fields": ""
+          },
+          "pieType": "pie",
+          "tooltip": {"mode": "single"},
+          "legend": {"displayMode": "list", "placement": "bottom"},
+          "displayLabels": ["name", "value"]
+        }
+      },
+      {
+        "id": 3,
+        "title": "Real-time Tracking Events",
+        "type": "timeseries",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+        "targets": [
+          {
+            "expr": "sum(rate(baggage_tracking_events_total[5m])) by (event_type)",
+            "legendFormat": "{{event_type}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 10,
+              "gradientMode": "none",
+              "hideFrom": {"legend": false, "tooltip": false, "vis": false},
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {"type": "linear"},
+              "showPoints": "never",
+              "spanNulls": false,
+              "stacking": {"group": "A", "mode": "none"},
+              "thresholdsStyle": {"mode": "off"}
+            },
+            "mappings": [],
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "red", "value": 80}
+              ]
+            },
+            "unit": "events/sec"
+          }
+        },
+        "options": {
+          "legend": {"calcs": [], "displayMode": "list", "placement": "bottom"},
+          "tooltip": {"mode": "single"}
+        }
+      },
+      {
+        "id": 4,
+        "title": "RFID Scanner Performance",
+        "type": "timeseries",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+        "targets": [
+          {
+            "expr": "avg(baggage_rfid_read_success_rate) by (scanner_id)",
+            "legendFormat": "Scanner {{scanner_id}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 10,
+              "gradientMode": "none",
+              "hideFrom": {"legend": false, "tooltip": false, "vis": false},
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {"type": "linear"},
+              "showPoints": "never",
+              "spanNulls": false,
+              "stacking": {"group": "A", "mode": "none"},
+              "thresholdsStyle": {"mode": "off"}
+            },
+            "mappings": [],
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "yellow", "value": 0.85},
+                {"color": "green", "value": 0.95}
+              ]
+            },
+            "unit": "percentunit",
+            "min": 0,
+            "max": 1
+          }
+        },
+        "options": {
+          "legend": {"calcs": [], "displayMode": "list", "placement": "bottom"},
+          "tooltip": {"mode": "single"}
+        }
+      },
+      {
+        "id": 5,
+        "title": "Baggage Location Accuracy",
+        "type": "timeseries",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+        "targets": [
+          {
+            "expr": "avg(baggage_location_accuracy_meters)",
+            "legendFormat": "GPS Accuracy (m)"
+          },
+          {
+            "expr": "avg(baggage_indoor_positioning_accuracy)",
+            "legendFormat": "Indoor Positioning Accuracy"
+          },
+          {
+            "expr": "avg(baggage_beacon_proximity_accuracy)",
+            "legendFormat": "Beacon Proximity (m)"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 10,
+              "gradientMode": "none",
+              "hideFrom": {"legend": false, "tooltip": false, "vis": false},
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {"type": "linear"},
+              "showPoints": "never",
+              "spanNulls": false,
+              "stacking": {"group": "A", "mode": "none"},
+              "thresholdsStyle": {"mode": "off"}
+            },
+            "mappings": [],
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 5},
+                {"color": "red", "value": 10}
+              ]
+            },
+            "unit": "lengthm"
+          }
+        },
+        "options": {
+          "legend": {"calcs": [], "displayMode": "list", "placement": "bottom"},
+          "tooltip": {"mode": "single"}
+        }
+      },
+      {
+        "id": 6,
+        "title": "Baggage Journey Time",
+        "type": "timeseries",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 20},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, sum(rate(baggage_journey_duration_seconds_bucket[5m])) by (le))",
+            "legendFormat": "50th percentile"
+          },
+          {
+            "expr": "histogram_quantile(0.90, sum(rate(baggage_journey_duration_seconds_bucket[5m])) by (le))",
+            "legendFormat": "90th percentile"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(baggage_journey_duration_seconds_bucket[5m])) by (le))",
+            "legendFormat": "95th percentile"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 10,
+              "gradientMode": "none",
+              "hideFrom": {"legend": false, "tooltip": false, "vis": false},
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {"type": "linear"},
+              "showPoints": "never",
+              "spanNulls": false,
+              "stacking": {"group": "A", "mode": "none"},
+              "thresholdsStyle": {"mode": "off"}
+            },
+            "mappings": [],
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 1800},
+                {"color": "red", "value": 3600}
+              ]
+            },
+            "unit": "s"
+          }
+        },
+        "options": {
+          "legend": {"calcs": [], "displayMode": "list", "placement": "bottom"},
+          "tooltip": {"mode": "single"}
+        }
+      },
+      {
+        "id": 7,
+        "title": "IoT Sensor Health",
+        "type": "stat",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 20},
+        "targets": [
+          {
+            "expr": "sum(baggage_iot_sensors_online)",
+            "legendFormat": "Sensors Online"
+          },
+          {
+            "expr": "sum(baggage_iot_sensors_offline)",
+            "legendFormat": "Sensors Offline"
+          },
+          {
+            "expr": "avg(baggage_iot_battery_level)",
+            "legendFormat": "Avg Battery %"
+          },
+          {
+            "expr": "sum(baggage_iot_connectivity_issues)",
+            "legendFormat": "Connectivity Issues"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "value"},
+            "custom": {"displayMode": "list", "orientation": "horizontal"},
+            "mappings": [],
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 20},
+                {"color": "red", "value": 50}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 8,
+        "title": "Alert Summary",
+        "type": "table",
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 28},
+        "targets": [
+          {
+            "expr": "sum(baggage_alerts_total) by (alert_type, severity)",
+            "legendFormat": "{{alert_type}} - {{severity}}",
+            "format": "table"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "custom": {
+              "align": "auto",
+              "displayMode": "auto"
+            },
+            "mappings": [
+              {"options": {"critical": {"color": "red", "text": "Critical"}}, "type": "value"},
+              {"options": {"warning": {"color": "yellow", "text": "Warning"}}, "type": "value"},
+              {"options": {"info": {"color": "blue", "text": "Info"}}, "type": "value"}
+            ],
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "red", "value": 80}
+              ]
+            }
+          }
+        },
+        "options": {
+          "showHeader": true
+        }
+      }
+    ],
+    "time": {"from": "now-1h", "to": "now"},
+    "timepicker": {},
+    "timezone": "",
+    "title": "AeroFusionXR Baggage Tracker",
+    "uid": "baggage-tracker-dashboard",
+    "version": 1,
+    "weekStart": ""
+  }
+} 
