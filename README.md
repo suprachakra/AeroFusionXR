@@ -117,7 +117,135 @@ AeroFusionXR/
 | 4     | Months 18–24 | Scale: XR headsets support, edge AI, offline modes, global rollout           |
 
 ---
+### **Overall Platform Architecture**
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        WEB[Web Client<br/>React/TypeScript]
+        MOBILE[Mobile Client<br/>React Native]
+        XR[XR Client<br/>Unity/WebXR]
+        KIOSK[Kiosk Interface<br/>Electron]
+    end
 
+    subgraph "API Gateway Layer"
+        GW[API Gateway<br/>Authentication & Routing]
+        LB[Load Balancer<br/>Traffic Distribution]
+    end
+    
+    subgraph "Core Services"
+        AI[AI Concierge<br/>NLP & ML]
+        FLIGHT[Flight Info<br/>Real-time Data]
+        BAG[Baggage Tracker<br/>Computer Vision]
+        WAY[Wayfinding<br/>Indoor Positioning]
+        COM[Commerce<br/>E-commerce Engine]
+        BOOK[Booking<br/>Reservation System]
+    end
+    
+    subgraph "ML Platform"
+        MODEL[Model Registry<br/>ML Model Management]
+        FEATURE[Feature Store<br/>ML Feature Serving]
+    end
+
+    subgraph "Data Layer"
+        POSTGRES[(PostgreSQL<br/>Transactional Data)]
+        MONGO[(MongoDB<br/>Document Store)]
+        REDIS[(Redis<br/>Caching & Sessions)]
+        S3[(S3<br/>Object Storage)]
+    end
+    
+    subgraph "Infrastructure"
+        K8S[Kubernetes<br/>Container Orchestration]
+        PROM[Prometheus<br/>Metrics]
+        GRAF[Grafana<br/>Monitoring]
+        JAEGER[Jaeger<br/>Tracing]
+    end
+    
+    WEB --> LB
+    MOBILE --> LB
+    XR --> LB
+    KIOSK --> LB
+    
+    LB --> GW
+    GW --> AI
+    GW --> FLIGHT
+    GW --> BAG
+    GW --> WAY
+    GW --> COM
+    GW --> BOOK
+    
+    AI --> MODEL
+    AI --> FEATURE
+    BAG --> MODEL
+    WAY --> MODEL
+    
+    AI --> POSTGRES
+    FLIGHT --> POSTGRES
+    BAG --> MONGO
+    WAY --> REDIS
+    COM --> MONGO
+    BOOK --> POSTGRES
+    
+    MODEL --> S3
+    FEATURE --> POSTGRES
+    
+    K8S --> PROM
+    PROM --> GRAF
+    K8S --> JAEGER
+```
+---
+### **Service Mesh Architecture**
+
+```mermaid
+graph LR
+    subgraph "Service Mesh (Istio)"
+        subgraph "AI Services"
+            AI[AI Concierge]
+            NLP[NLP Engine]
+            CV[Computer Vision]
+        end
+        
+        subgraph "Business Services"
+            FLIGHT[Flight Info]
+            BAG[Baggage Tracker]
+            WAY[Wayfinding]
+            COM[Commerce]
+            BOOK[Booking]
+        end
+        
+        subgraph "Platform Services"
+            MODEL[Model Registry]
+            FEATURE[Feature Store]
+            AUTH[Authentication]
+            NOTIFY[Notifications]
+        end
+    end
+    
+    subgraph "External Integrations"
+        AIRLINES[Airlines APIs]
+        PAYMENT[Payment Gateways]
+        AIRPORT[Airport Systems]
+        WEATHER[Weather APIs]
+    end
+    
+    AI --> NLP
+    AI --> CV
+    BAG --> CV
+    WAY --> MODEL
+    AI --> MODEL
+    
+    FLIGHT --> AIRLINES
+    COM --> PAYMENT
+    WAY --> AIRPORT
+    AI --> WEATHER
+    
+    AUTH --> AI
+    AUTH --> FLIGHT
+    AUTH --> BAG
+    AUTH --> WAY
+    AUTH --> COM
+    AUTH --> BOOK
+```
+---
 ### 🧪 Testing & Quality Gates
 
 * **CI Pipeline**: Lint → Build → Unit Tests → SAST/DAST → Integration Tests → Canary Deploy
