@@ -1,3 +1,0 @@
-- id: flight_status
-  user: "What's the status of EK404 on 2025-06-01?"
-  expected: "EK404 is on time at Gate A1."
