@@ -1,0 +1,432 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "AeroFusionXR Booking",
+    "tags": ["aerofusion", "booking", "reservations", "flights", "customer"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Booking Overview",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 24, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(booking_total_reservations_today)",
+            "legendFormat": "Bookings Today"
+          },
+          {
+            "expr": "sum(booking_active_reservations)",
+            "legendFormat": "Active Bookings"
+          },
+          {
+            "expr": "sum(booking_cancelled_reservations)",
+            "legendFormat": "Cancelled Today"
+          },
+          {
+            "expr": "avg(booking_conversion_rate) * 100",
+            "legendFormat": "Conversion %"
+          },
+          {
+            "expr": "avg(booking_average_booking_value)",
+            "legendFormat": "Avg Booking Value"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "custom": {"displayMode": "list", "orientation": "horizontal"},
+            "mappings": [],
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 75},
+                {"color": "red", "value": 50}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Booking Funnel Performance",
+        "type": "timeseries",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+        "targets": [
+          {
+            "expr": "sum(rate(booking_search_requests_total[5m]))",
+            "legendFormat": "Flight Searches"
+          },
+          {
+            "expr": "sum(rate(booking_flight_selections_total[5m]))",
+            "legendFormat": "Flight Selections"
+          },
+          {
+            "expr": "sum(rate(booking_passenger_details_completed_total[5m]))",
+            "legendFormat": "Details Completed"
+          },
+          {
+            "expr": "sum(rate(booking_payment_attempts_total[5m]))",
+            "legendFormat": "Payment Attempts"
+          },
+          {
+            "expr": "sum(rate(booking_completed_total[5m]))",
+            "legendFormat": "Completed Bookings"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 10,
+              "gradientMode": "none",
+              "hideFrom": {"legend": false, "tooltip": false, "vis": false},
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {"type": "linear"},
+              "showPoints": "never",
+              "spanNulls": false,
+              "stacking": {"group": "A", "mode": "none"},
+              "thresholdsStyle": {"mode": "off"}
+            },
+            "mappings": [],
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "red", "value": 80}
+              ]
+            },
+            "unit": "reqps"
+          }
+        },
+        "options": {
+          "legend": {"calcs": [], "displayMode": "list", "placement": "bottom"},
+          "tooltip": {"mode": "single"}
+        }
+      },
+      {
+        "id": 3,
+        "title": "Booking Sources",
+        "type": "piechart",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+        "targets": [
+          {
+            "expr": "sum(booking_by_source) by (source)",
+            "legendFormat": "{{source}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "custom": {
+              "hideFrom": {"legend": false, "tooltip": false, "vis": false}
+            },
+            "mappings": [
+              {"options": {"web": {"color": "blue", "text": "Web Portal"}}, "type": "value"},
+              {"options": {"mobile": {"color": "green", "text": "Mobile App"}}, "type": "value"},
+              {"options": {"kiosk": {"color": "orange", "text": "Airport Kiosk"}}, "type": "value"},
+              {"options": {"call_center": {"color": "purple", "text": "Call Center"}}, "type": "value"},
+              {"options": {"travel_agent": {"color": "red", "text": "Travel Agent"}}, "type": "value"},
+              {"options": {"api": {"color": "yellow", "text": "API/Partner"}}, "type": "value"}
+            ]
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"],
+            "fields": ""
+          },
+          "pieType": "pie",
+          "tooltip": {"mode": "single"},
+          "legend": {"displayMode": "list", "placement": "bottom"},
+          "displayLabels": ["name", "value"]
+        }
+      },
+      {
+        "id": 4,
+        "title": "Booking Response Times",
+        "type": "timeseries",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, sum(rate(booking_search_duration_seconds_bucket[5m])) by (le))",
+            "legendFormat": "Search P50"
+          },
+          {
+            "expr": "histogram_quantile(0.90, sum(rate(booking_search_duration_seconds_bucket[5m])) by (le))",
+            "legendFormat": "Search P90"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(booking_booking_duration_seconds_bucket[5m])) by (le))",
+            "legendFormat": "Booking P95"
+          },
+          {
+            "expr": "histogram_quantile(0.99, sum(rate(booking_booking_duration_seconds_bucket[5m])) by (le))",
+            "legendFormat": "Booking P99"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 10,
+              "gradientMode": "none",
+              "hideFrom": {"legend": false, "tooltip": false, "vis": false},
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {"type": "linear"},
+              "showPoints": "never",
+              "spanNulls": false,
+              "stacking": {"group": "A", "mode": "none"},
+              "thresholdsStyle": {"mode": "off"}
+            },
+            "mappings": [],
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 2},
+                {"color": "red", "value": 5}
+              ]
+            },
+            "unit": "s"
+          }
+        },
+        "options": {
+          "legend": {"calcs": [], "displayMode": "list", "placement": "bottom"},
+          "tooltip": {"mode": "single"}
+        }
+      },
+      {
+        "id": 5,
+        "title": "Popular Routes",
+        "type": "table",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+        "targets": [
+          {
+            "expr": "topk(10, sum(booking_route_popularity) by (departure_airport, arrival_airport))",
+            "legendFormat": "{{departure_airport}} → {{arrival_airport}}",
+            "format": "table"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "custom": {
+              "align": "auto",
+              "displayMode": "auto"
+            },
+            "mappings": [],
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "red", "value": 80}
+              ]
+            }
+          }
+        },
+        "options": {
+          "showHeader": true
+        }
+      },
+      {
+        "id": 6,
+        "title": "Cancellation Analytics",
+        "type": "timeseries",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 20},
+        "targets": [
+          {
+            "expr": "sum(rate(booking_cancellations_total[1h])) by (reason) * 3600",
+            "legendFormat": "{{reason}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 10,
+              "gradientMode": "none",
+              "hideFrom": {"legend": false, "tooltip": false, "vis": false},
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {"type": "linear"},
+              "showPoints": "never",
+              "spanNulls": false,
+              "stacking": {"group": "A", "mode": "none"},
+              "thresholdsStyle": {"mode": "off"}
+            },
+            "mappings": [],
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 5},
+                {"color": "red", "value": 10}
+              ]
+            },
+            "unit": "cancellations/hour"
+          }
+        },
+        "options": {
+          "legend": {"calcs": [], "displayMode": "list", "placement": "bottom"},
+          "tooltip": {"mode": "single"}
+        }
+      },
+      {
+        "id": 7,
+        "title": "Customer Segments",
+        "type": "bargauge",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 20},
+        "targets": [
+          {
+            "expr": "sum(booking_by_customer_segment) by (segment)",
+            "legendFormat": "{{segment}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "displayMode": "list",
+              "orientation": "horizontal"
+            },
+            "mappings": [
+              {"options": {"business": {"color": "blue", "text": "Business"}}, "type": "value"},
+              {"options": {"leisure": {"color": "green", "text": "Leisure"}}, "type": "value"},
+              {"options": {"family": {"color": "orange", "text": "Family"}}, "type": "value"},
+              {"options": {"group": {"color": "purple", "text": "Group"}}, "type": "value"},
+              {"options": {"frequent_flyer": {"color": "gold", "text": "Frequent Flyer"}}, "type": "value"}
+            ],
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "red", "value": 80}
+              ]
+            },
+            "unit": "short"
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"],
+            "fields": ""
+          },
+          "orientation": "horizontal",
+          "text": {},
+          "displayMode": "list"
+        }
+      },
+      {
+        "id": 8,
+        "title": "Payment Processing",
+        "type": "stat",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 28},
+        "targets": [
+          {
+            "expr": "sum(rate(booking_payment_success_total[5m])) / sum(rate(booking_payment_attempts_total[5m])) * 100",
+            "legendFormat": "Payment Success %"
+          },
+          {
+            "expr": "sum(booking_payment_failures_today)",
+            "legendFormat": "Failed Payments"
+          },
+          {
+            "expr": "avg(booking_payment_processing_time_seconds)",
+            "legendFormat": "Avg Processing Time"
+          },
+          {
+            "expr": "sum(booking_payment_retries_total)",
+            "legendFormat": "Payment Retries"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "value"},
+            "custom": {"displayMode": "list", "orientation": "horizontal"},
+            "mappings": [],
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "yellow", "value": 95},
+                {"color": "green", "value": 98}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 9,
+        "title": "Booking Errors & Issues",
+        "type": "timeseries",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 28},
+        "targets": [
+          {
+            "expr": "sum(rate(booking_errors_total[5m])) by (error_type)",
+            "legendFormat": "{{error_type}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 10,
+              "gradientMode": "none",
+              "hideFrom": {"legend": false, "tooltip": false, "vis": false},
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {"type": "linear"},
+              "showPoints": "never",
+              "spanNulls": false,
+              "stacking": {"group": "A", "mode": "none"},
+              "thresholdsStyle": {"mode": "off"}
+            },
+            "mappings": [],
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 1},
+                {"color": "red", "value": 5}
+              ]
+            },
+            "unit": "errors/sec"
+          }
+        },
+        "options": {
+          "legend": {"calcs": [], "displayMode": "list", "placement": "bottom"},
+          "tooltip": {"mode": "single"}
+        }
+      }
+    ],
+    "time": {"from": "now-1h", "to": "now"},
+    "timepicker": {},
+    "timezone": "",
+    "title": "AeroFusionXR Booking",
+    "uid": "booking-dashboard",
+    "version": 1,
+    "weekStart": ""
+  }
+} 

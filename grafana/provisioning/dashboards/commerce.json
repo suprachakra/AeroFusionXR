@@ -1,0 +1,438 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "AeroFusionXR Commerce",
+    "tags": ["aerofusion", "commerce", "sales", "payments", "retail"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Commerce Overview",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 24, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(commerce_total_revenue_today)",
+            "legendFormat": "Revenue Today"
+          },
+          {
+            "expr": "sum(commerce_orders_total)",
+            "legendFormat": "Total Orders"
+          },
+          {
+            "expr": "sum(commerce_active_sessions)",
+            "legendFormat": "Active Sessions"
+          },
+          {
+            "expr": "avg(commerce_average_order_value)",
+            "legendFormat": "Avg Order Value"
+          },
+          {
+            "expr": "sum(commerce_conversion_rate) * 100",
+            "legendFormat": "Conversion %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "custom": {"displayMode": "list", "orientation": "horizontal"},
+            "mappings": [],
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "red", "value": 80}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Revenue Trends",
+        "type": "timeseries",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+        "targets": [
+          {
+            "expr": "sum(rate(commerce_revenue_total[1h])) * 3600",
+            "legendFormat": "Hourly Revenue"
+          },
+          {
+            "expr": "sum(rate(commerce_orders_completed_total[1h])) * 3600",
+            "legendFormat": "Orders/Hour"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 10,
+              "gradientMode": "none",
+              "hideFrom": {"legend": false, "tooltip": false, "vis": false},
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {"type": "linear"},
+              "showPoints": "never",
+              "spanNulls": false,
+              "stacking": {"group": "A", "mode": "none"},
+              "thresholdsStyle": {"mode": "off"}
+            },
+            "mappings": [],
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "red", "value": 80}
+              ]
+            },
+            "unit": "currencyUSD"
+          }
+        },
+        "options": {
+          "legend": {"calcs": [], "displayMode": "list", "placement": "bottom"},
+          "tooltip": {"mode": "single"}
+        }
+      },
+      {
+        "id": 3,
+        "title": "Payment Methods Distribution",
+        "type": "piechart",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+        "targets": [
+          {
+            "expr": "sum(commerce_payments_by_method) by (payment_method)",
+            "legendFormat": "{{payment_method}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "custom": {
+              "hideFrom": {"legend": false, "tooltip": false, "vis": false}
+            },
+            "mappings": [
+              {"options": {"credit_card": {"color": "blue", "text": "Credit Card"}}, "type": "value"},
+              {"options": {"debit_card": {"color": "green", "text": "Debit Card"}}, "type": "value"},
+              {"options": {"digital_wallet": {"color": "purple", "text": "Digital Wallet"}}, "type": "value"},
+              {"options": {"cash": {"color": "orange", "text": "Cash"}}, "type": "value"},
+              {"options": {"crypto": {"color": "yellow", "text": "Cryptocurrency"}}, "type": "value"}
+            ]
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"],
+            "fields": ""
+          },
+          "pieType": "pie",
+          "tooltip": {"mode": "single"},
+          "legend": {"displayMode": "list", "placement": "bottom"},
+          "displayLabels": ["name", "value"]
+        }
+      },
+      {
+        "id": 4,
+        "title": "Top Selling Products",
+        "type": "bargauge",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+        "targets": [
+          {
+            "expr": "topk(10, sum(commerce_product_sales) by (product_name))",
+            "legendFormat": "{{product_name}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "displayMode": "list",
+              "orientation": "horizontal"
+            },
+            "mappings": [],
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "red", "value": 80}
+              ]
+            },
+            "unit": "short"
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"],
+            "fields": ""
+          },
+          "orientation": "horizontal",
+          "text": {},
+          "displayMode": "list"
+        }
+      },
+      {
+        "id": 5,
+        "title": "Payment Processing Performance",
+        "type": "timeseries",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+        "targets": [
+          {
+            "expr": "sum(rate(commerce_payment_transactions_total{status=\"success\"}[5m])) / sum(rate(commerce_payment_transactions_total[5m])) * 100",
+            "legendFormat": "Success Rate %"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(commerce_payment_processing_duration_seconds_bucket[5m])) by (le))",
+            "legendFormat": "95th Percentile Latency"
+          },
+          {
+            "expr": "sum(rate(commerce_payment_failures_total[5m]))",
+            "legendFormat": "Failures/sec"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 10,
+              "gradientMode": "none",
+              "hideFrom": {"legend": false, "tooltip": false, "vis": false},
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {"type": "linear"},
+              "showPoints": "never",
+              "spanNulls": false,
+              "stacking": {"group": "A", "mode": "none"},
+              "thresholdsStyle": {"mode": "off"}
+            },
+            "mappings": [],
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 95},
+                {"color": "red", "value": 90}
+              ]
+            }
+          }
+        },
+        "options": {
+          "legend": {"calcs": [], "displayMode": "list", "placement": "bottom"},
+          "tooltip": {"mode": "single"}
+        }
+      },
+      {
+        "id": 6,
+        "title": "Inventory Levels",
+        "type": "timeseries",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 20},
+        "targets": [
+          {
+            "expr": "sum(commerce_inventory_stock_level) by (category)",
+            "legendFormat": "{{category}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 10,
+              "gradientMode": "none",
+              "hideFrom": {"legend": false, "tooltip": false, "vis": false},
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {"type": "linear"},
+              "showPoints": "never",
+              "spanNulls": false,
+              "stacking": {"group": "A", "mode": "none"},
+              "thresholdsStyle": {"mode": "off"}
+            },
+            "mappings": [],
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "yellow", "value": 10},
+                {"color": "green", "value": 50}
+              ]
+            },
+            "unit": "short"
+          }
+        },
+        "options": {
+          "legend": {"calcs": [], "displayMode": "list", "placement": "bottom"},
+          "tooltip": {"mode": "single"}
+        }
+      },
+      {
+        "id": 7,
+        "title": "Customer Analytics",
+        "type": "timeseries",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 20},
+        "targets": [
+          {
+            "expr": "sum(commerce_new_customers_total)",
+            "legendFormat": "New Customers"
+          },
+          {
+            "expr": "sum(commerce_returning_customers_total)",
+            "legendFormat": "Returning Customers"
+          },
+          {
+            "expr": "avg(commerce_customer_lifetime_value)",
+            "legendFormat": "Avg Customer LTV"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 10,
+              "gradientMode": "none",
+              "hideFrom": {"legend": false, "tooltip": false, "vis": false},
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {"type": "linear"},
+              "showPoints": "never",
+              "spanNulls": false,
+              "stacking": {"group": "A", "mode": "none"},
+              "thresholdsStyle": {"mode": "off"}
+            },
+            "mappings": [],
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "red", "value": 80}
+              ]
+            }
+          }
+        },
+        "options": {
+          "legend": {"calcs": [], "displayMode": "list", "placement": "bottom"},
+          "tooltip": {"mode": "single"}
+        }
+      },
+      {
+        "id": 8,
+        "title": "Security & Fraud Detection",
+        "type": "stat",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 28},
+        "targets": [
+          {
+            "expr": "sum(commerce_fraud_attempts_blocked)",
+            "legendFormat": "Fraud Blocked"
+          },
+          {
+            "expr": "sum(commerce_security_alerts)",
+            "legendFormat": "Security Alerts"
+          },
+          {
+            "expr": "sum(commerce_suspicious_transactions)",
+            "legendFormat": "Suspicious Transactions"
+          },
+          {
+            "expr": "avg(commerce_fraud_detection_accuracy) * 100",
+            "legendFormat": "Detection Accuracy %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "value"},
+            "custom": {"displayMode": "list", "orientation": "horizontal"},
+            "mappings": [],
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 5},
+                {"color": "red", "value": 10}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 9,
+        "title": "AR Commerce Engagement",
+        "type": "timeseries",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 28},
+        "targets": [
+          {
+            "expr": "sum(commerce_ar_product_views)",
+            "legendFormat": "AR Product Views"
+          },
+          {
+            "expr": "sum(commerce_ar_try_on_sessions)",
+            "legendFormat": "AR Try-On Sessions"
+          },
+          {
+            "expr": "sum(commerce_ar_purchases_total)",
+            "legendFormat": "AR-Driven Purchases"
+          },
+          {
+            "expr": "avg(commerce_ar_session_duration_seconds)",
+            "legendFormat": "Avg AR Session Duration"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 10,
+              "gradientMode": "none",
+              "hideFrom": {"legend": false, "tooltip": false, "vis": false},
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {"type": "linear"},
+              "showPoints": "never",
+              "spanNulls": false,
+              "stacking": {"group": "A", "mode": "none"},
+              "thresholdsStyle": {"mode": "off"}
+            },
+            "mappings": [],
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "red", "value": 80}
+              ]
+            }
+          }
+        },
+        "options": {
+          "legend": {"calcs": [], "displayMode": "list", "placement": "bottom"},
+          "tooltip": {"mode": "single"}
+        }
+      }
+    ],
+    "time": {"from": "now-1h", "to": "now"},
+    "timepicker": {},
+    "timezone": "",
+    "title": "AeroFusionXR Commerce",
+    "uid": "commerce-dashboard",
+    "version": 1,
+    "weekStart": ""
+  }
+} 
