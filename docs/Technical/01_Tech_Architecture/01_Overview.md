@@ -1,6 +1,7 @@
 ## AeroFusionXR Platform Architecture
 
 ### Introduction & Strategic Goals
+A unified, narrative-driven architecture for Aerofusion XR, an enterprise-scale GenAI + XR platform tailored for a leading aviation group.
 
 ### Vision Statement
 AeroFusionXR transforms aviation experiences through enterprise-grade AR/XR technologies, creating seamless, intelligent, and personalized journey management for passengers while providing operational excellence for aviation stakeholders.
