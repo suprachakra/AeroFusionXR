@@ -1,0 +1,308 @@
+# 🗄️ AeroFusionXR Database Configuration
+
+# ==========================================
+# 📊 PRIMARY DATABASE (PostgreSQL)
+# ==========================================
+primary:
+  type: postgresql
+  host: ${DATABASE_HOST:localhost}
+  port: ${DATABASE_PORT:5432}
+  database: ${DATABASE_NAME:aerofusion}
+  username: ${DATABASE_USERNAME:postgres}
+  password: ${DATABASE_PASSWORD:password}
+  
+  # 🔒 SSL Configuration
+  ssl:
+    enabled: ${DATABASE_SSL:false}
+    ca_cert: ${DATABASE_SSL_CA:}
+    client_cert: ${DATABASE_SSL_CERT:}
+    client_key: ${DATABASE_SSL_KEY:}
+    reject_unauthorized: ${DATABASE_SSL_REJECT_UNAUTHORIZED:true}
+  
+  # 🏊 Connection Pool Settings
+  pool:
+    min: ${DATABASE_POOL_MIN:2}
+    max: ${DATABASE_POOL_MAX:20}
+    idle_timeout: ${DATABASE_IDLE_TIMEOUT:30000}
+    acquire_timeout: ${DATABASE_ACQUIRE_TIMEOUT:60000}
+    create_timeout: ${DATABASE_CREATE_TIMEOUT:30000}
+    destroy_timeout: ${DATABASE_DESTROY_TIMEOUT:5000}
+    create_retry_interval_millis: ${DATABASE_RETRY_INTERVAL:500}
+    propagate_create_error: ${DATABASE_PROPAGATE_ERROR:false}
+  
+  # 🔄 Migration Settings
+  migrations:
+    directory: ./migrations
+    table_name: knex_migrations
+    extension: ts
+    disable_transactions: false
+    sort_dir: asc
+    load_extensions: ['.ts', '.js']
+    auto_run: ${DATABASE_AUTO_MIGRATE:false}
+    
+  # 🌱 Seed Settings  
+  seeds:
+    directory: ./seeds
+    extension: ts
+    timestamp_filename: true
+    
+  # 📊 Query Settings
+  query:
+    timeout: ${DATABASE_QUERY_TIMEOUT:30000}
+    cancel_timeout: ${DATABASE_CANCEL_TIMEOUT:5000}
+    log_queries: ${DATABASE_LOG_QUERIES:false}
+    log_query_parameters: ${DATABASE_LOG_PARAMS:false}
+    
+  # 🎯 Performance Settings
+  performance:
+    statement_timeout: ${DATABASE_STATEMENT_TIMEOUT:0}
+    lock_timeout: ${DATABASE_LOCK_TIMEOUT:0}
+    idle_in_transaction_session_timeout: ${DATABASE_IDLE_TRANSACTION_TIMEOUT:0}
+
+# ==========================================
+# 📈 ANALYTICS DATABASE (MongoDB)
+# ==========================================
+analytics:
+  type: mongodb
+  uri: ${MONGODB_URI:mongodb://localhost:27017/aerofusion_analytics}
+  
+  # 🔒 Authentication
+  auth:
+    username: ${MONGODB_USERNAME:}
+    password: ${MONGODB_PASSWORD:}
+    auth_source: ${MONGODB_AUTH_SOURCE:admin}
+    
+  # 🏊 Connection Pool
+  options:
+    useNewUrlParser: true
+    useUnifiedTopology: true
+    maxPoolSize: ${MONGODB_POOL_SIZE:10}
+    minPoolSize: ${MONGODB_MIN_POOL_SIZE:2}
+    maxIdleTimeMS: ${MONGODB_IDLE_TIME:30000}
+    serverSelectionTimeoutMS: ${MONGODB_SERVER_TIMEOUT:5000}
+    socketTimeoutMS: ${MONGODB_SOCKET_TIMEOUT:45000}
+    heartbeatFrequencyMS: ${MONGODB_HEARTBEAT:10000}
+    
+  # 📊 Write Concerns
+  write_concern:
+    w: ${MONGODB_WRITE_CONCERN:majority}
+    j: ${MONGODB_JOURNAL:true}
+    wtimeout: ${MONGODB_WRITE_TIMEOUT:5000}
+    
+  # 📖 Read Preferences
+  read_preference:
+    mode: ${MONGODB_READ_PREFERENCE:primary}
+    tag_sets: []
+    max_staleness_seconds: ${MONGODB_MAX_STALENESS:90}
+    
+  # 🗂️ Collections
+  collections:
+    user_activities: aerofusion_user_activities
+    flight_analytics: aerofusion_flight_analytics
+    baggage_events: aerofusion_baggage_events
+    wayfinding_analytics: aerofusion_wayfinding_analytics
+    commerce_analytics: aerofusion_commerce_analytics
+    system_metrics: aerofusion_system_metrics
+
+# ==========================================
+# ⚡ CACHE DATABASE (Redis)
+# ==========================================
+cache:
+  type: redis
+  host: ${REDIS_HOST:localhost}
+  port: ${REDIS_PORT:6379}
+  password: ${REDIS_PASSWORD:}
+  database: ${REDIS_DB:0}
+  
+  # 🔄 Connection Settings
+  connection:
+    family: ${REDIS_FAMILY:4}
+    keep_alive: ${REDIS_KEEP_ALIVE:true}
+    connect_timeout: ${REDIS_CONNECT_TIMEOUT:10000}
+    lazy_connect: ${REDIS_LAZY_CONNECT:true}
+    max_retries_per_request: ${REDIS_MAX_RETRIES:3}
+    retry_delay_on_failed_attempt: ${REDIS_RETRY_DELAY:1000}
+    enable_ready_check: ${REDIS_READY_CHECK:true}
+    max_reconnect_attempts: ${REDIS_MAX_RECONNECT:20}
+    
+  # ⚙️ Performance Settings
+  performance:
+    compression: ${REDIS_COMPRESSION:false}
+    key_prefix: ${REDIS_KEY_PREFIX:aerofusion:}
+    detect_open_handles: ${REDIS_DETECT_HANDLES:false}
+    enable_auto_pipelining: ${REDIS_AUTO_PIPELINE:false}
+    
+  # ⏱️ TTL Settings
+  ttl:
+    default: ${REDIS_TTL:3600}
+    sessions: ${REDIS_SESSION_TTL:86400}
+    tokens: ${REDIS_TOKEN_TTL:3600}
+    cache: ${REDIS_CACHE_TTL:1800}
+    analytics: ${REDIS_ANALYTICS_TTL:7200}
+    
+  # 🔐 Security
+  security:
+    tls_enabled: ${REDIS_TLS:false}
+    tls_cert_file: ${REDIS_TLS_CERT:}
+    tls_key_file: ${REDIS_TLS_KEY:}
+    tls_ca_file: ${REDIS_TLS_CA:}
+
+# ==========================================
+# 🔍 SEARCH DATABASE (Elasticsearch)
+# ==========================================
+search:
+  type: elasticsearch
+  node: ${ELASTICSEARCH_NODE:http://localhost:9200}
+  
+  # 🔒 Authentication
+  auth:
+    username: ${ELASTICSEARCH_USERNAME:}
+    password: ${ELASTICSEARCH_PASSWORD:}
+    api_key: ${ELASTICSEARCH_API_KEY:}
+    
+  # 🌐 Connection Settings
+  connection:
+    max_retries: ${ELASTICSEARCH_MAX_RETRIES:3}
+    request_timeout: ${ELASTICSEARCH_REQUEST_TIMEOUT:30000}
+    ping_timeout: ${ELASTICSEARCH_PING_TIMEOUT:3000}
+    sniff_on_start: ${ELASTICSEARCH_SNIFF_START:false}
+    sniff_interval: ${ELASTICSEARCH_SNIFF_INTERVAL:false}
+    sniff_on_connection_fault: ${ELASTICSEARCH_SNIFF_FAULT:false}
+    
+  # 📊 Indices Configuration
+  indices:
+    flights:
+      name: ${ELASTICSEARCH_FLIGHTS_INDEX:aerofusion_flights}
+      mappings:
+        properties:
+          flight_number: { type: keyword }
+          airline: { type: keyword }
+          departure_airport: { type: keyword }
+          arrival_airport: { type: keyword }
+          departure_time: { type: date }
+          arrival_time: { type: date }
+          status: { type: keyword }
+          gate: { type: keyword }
+          terminal: { type: keyword }
+    
+    baggage:
+      name: ${ELASTICSEARCH_BAGGAGE_INDEX:aerofusion_baggage}
+      mappings:
+        properties:
+          tag_id: { type: keyword }
+          flight_number: { type: keyword }
+          passenger_id: { type: keyword }
+          status: { type: keyword }
+          location: { type: geo_point }
+          timestamp: { type: date }
+          
+    locations:
+      name: ${ELASTICSEARCH_LOCATIONS_INDEX:aerofusion_locations}
+      mappings:
+        properties:
+          name: { type: text, analyzer: standard }
+          type: { type: keyword }
+          terminal: { type: keyword }
+          floor: { type: integer }
+          coordinates: { type: geo_point }
+          amenities: { type: keyword }
+
+# ==========================================
+# 📊 TIME-SERIES DATABASE (InfluxDB)
+# ==========================================
+timeseries:
+  type: influxdb
+  url: ${INFLUXDB_URL:http://localhost:8086}
+  token: ${INFLUXDB_TOKEN:}
+  org: ${INFLUXDB_ORG:aerofusion}
+  bucket: ${INFLUXDB_BUCKET:metrics}
+  
+  # ⚙️ Connection Settings
+  connection:
+    timeout: ${INFLUXDB_TIMEOUT:10000}
+    gzip_threshold: ${INFLUXDB_GZIP_THRESHOLD:1000}
+    retry_buffer_limit: ${INFLUXDB_RETRY_LIMIT:10000}
+    max_retry_delay: ${INFLUXDB_MAX_RETRY_DELAY:125000}
+    exponential_base: ${INFLUXDB_EXPONENTIAL_BASE:2}
+    
+  # 📊 Write Settings
+  write:
+    batch_size: ${INFLUXDB_BATCH_SIZE:1000}
+    flush_interval: ${INFLUXDB_FLUSH_INTERVAL:5000}
+    retry_interval: ${INFLUXDB_RETRY_INTERVAL:5000}
+    max_retries: ${INFLUXDB_MAX_RETRIES:3}
+    max_retry_time: ${INFLUXDB_MAX_RETRY_TIME:300000}
+    
+  # 📖 Query Settings
+  query:
+    default_timeout: ${INFLUXDB_QUERY_TIMEOUT:30000}
+    gzip_enabled: ${INFLUXDB_QUERY_GZIP:true}
+
+# ==========================================
+# 🔄 DATABASE ENVIRONMENT CONFIGURATIONS
+# ==========================================
+environments:
+  development:
+    primary:
+      database: aerofusion_dev
+      pool:
+        min: 1
+        max: 5
+      migrations:
+        auto_run: true
+        
+  test:
+    primary:
+      database: aerofusion_test
+      pool:
+        min: 1
+        max: 3
+      migrations:
+        auto_run: true
+      query:
+        log_queries: false
+        
+  staging:
+    primary:
+      ssl:
+        enabled: true
+        reject_unauthorized: true
+      pool:
+        min: 5
+        max: 15
+      performance:
+        statement_timeout: 30000
+        
+  production:
+    primary:
+      ssl:
+        enabled: true
+        reject_unauthorized: true
+      pool:
+        min: 10
+        max: 50
+      performance:
+        statement_timeout: 60000
+        lock_timeout: 5000
+      query:
+        log_queries: false
+
+# ==========================================
+# 📊 MONITORING & HEALTH CHECKS
+# ==========================================
+monitoring:
+  health_checks:
+    enabled: ${DATABASE_HEALTH_CHECKS:true}
+    interval: ${DATABASE_HEALTH_INTERVAL:30000}
+    timeout: ${DATABASE_HEALTH_TIMEOUT:5000}
+    
+  metrics:
+    enabled: ${DATABASE_METRICS:true}
+    connection_pool: true
+    query_performance: true
+    slow_query_threshold: ${DATABASE_SLOW_QUERY:1000}
+    
+  alerts:
+    connection_threshold: ${DATABASE_CONNECTION_ALERT:80}
+    response_time_threshold: ${DATABASE_RESPONSE_TIME_ALERT:5000}
+    error_rate_threshold: ${DATABASE_ERROR_RATE_ALERT:5} 

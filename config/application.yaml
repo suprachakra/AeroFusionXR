@@ -1,0 +1,350 @@
+# 🚀 AeroFusionXR Application Configuration
+
+# ==========================================
+# 🌍 ENVIRONMENT CONFIGURATION
+# ==========================================
+environment:
+  name: ${ENVIRONMENT:development}
+  region: ${AWS_REGION:us-east-1}
+  stage: ${STAGE:dev}
+  debug: ${DEBUG:true}
+  log_level: ${LOG_LEVEL:info}
+
+# ==========================================
+# 🌐 SERVER CONFIGURATION
+# ==========================================
+server:
+  port: ${PORT:3000}
+  host: ${HOST:0.0.0.0}
+  timeout:
+    request: ${REQUEST_TIMEOUT:30000}
+    response: ${RESPONSE_TIMEOUT:30000}
+    idle: ${IDLE_TIMEOUT:65000}
+  cors:
+    enabled: ${CORS_ENABLED:true}
+    origins: 
+      - ${FRONTEND_URL:http://localhost:3001}
+      - ${MOBILE_URL:http://localhost:3002}
+      - ${KIOSK_URL:http://localhost:3003}
+    credentials: true
+  compression:
+    enabled: true
+    threshold: 1024
+  rate_limiting:
+    enabled: ${RATE_LIMITING_ENABLED:true}
+    window_ms: ${RATE_LIMIT_WINDOW:900000} # 15 minutes
+    max_requests: ${RATE_LIMIT_MAX:100}
+    skip_failed_requests: false
+    skip_successful_requests: false
+
+# ==========================================
+# 🗄️ DATABASE CONFIGURATION
+# ==========================================
+databases:
+  primary:
+    type: postgresql
+    host: ${DATABASE_HOST:localhost}
+    port: ${DATABASE_PORT:5432}
+    name: ${DATABASE_NAME:aerofusion}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:password}
+    ssl: ${DATABASE_SSL:false}
+    pool:
+      min: ${DATABASE_POOL_MIN:2}
+      max: ${DATABASE_POOL_MAX:20}
+      idle_timeout: ${DATABASE_IDLE_TIMEOUT:30000}
+      acquire_timeout: ${DATABASE_ACQUIRE_TIMEOUT:60000}
+    migrations:
+      auto_run: ${DATABASE_AUTO_MIGRATE:false}
+      table_name: knex_migrations
+      directory: ./migrations
+  
+  analytics:
+    type: mongodb
+    uri: ${MONGODB_URI:mongodb://localhost:27017/aerofusion_analytics}
+    options:
+      useNewUrlParser: true
+      useUnifiedTopology: true
+      maxPoolSize: ${MONGODB_POOL_SIZE:10}
+      minPoolSize: 2
+      maxIdleTimeMS: 30000
+      serverSelectionTimeoutMS: 5000
+  
+  cache:
+    type: redis
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:}
+    database: ${REDIS_DB:0}
+    ttl: ${REDIS_TTL:3600}
+    retry_attempts: ${REDIS_RETRY_ATTEMPTS:3}
+    retry_delay: ${REDIS_RETRY_DELAY:1000}
+    family: 4
+    keepAlive: true
+
+# ==========================================
+# 🔐 AUTHENTICATION & SECURITY
+# ==========================================
+auth:
+  jwt:
+    secret: ${JWT_SECRET:your-super-secret-jwt-key}
+    expires_in: ${JWT_EXPIRES_IN:24h}
+    refresh_expires_in: ${JWT_REFRESH_EXPIRES_IN:7d}
+    issuer: ${JWT_ISSUER:aerofusionxr}
+    audience: ${JWT_AUDIENCE:aerofusionxr-users}
+  oauth:
+    google:
+      client_id: ${GOOGLE_CLIENT_ID:}
+      client_secret: ${GOOGLE_CLIENT_SECRET:}
+      redirect_uri: ${GOOGLE_REDIRECT_URI:}
+    microsoft:
+      client_id: ${MICROSOFT_CLIENT_ID:}
+      client_secret: ${MICROSOFT_CLIENT_SECRET:}
+      redirect_uri: ${MICROSOFT_REDIRECT_URI:}
+  session:
+    secret: ${SESSION_SECRET:your-session-secret}
+    ttl: ${SESSION_TTL:86400}
+    secure: ${SESSION_SECURE:false}
+    same_site: ${SESSION_SAME_SITE:lax}
+
+# ==========================================
+# ☁️ AWS SERVICES CONFIGURATION
+# ==========================================
+aws:
+  region: ${AWS_REGION:us-east-1}
+  credentials:
+    access_key_id: ${AWS_ACCESS_KEY_ID:}
+    secret_access_key: ${AWS_SECRET_ACCESS_KEY:}
+    session_token: ${AWS_SESSION_TOKEN:}
+  s3:
+    bucket: ${AWS_S3_BUCKET:aerofusion-storage}
+    region: ${AWS_S3_REGION:us-east-1}
+    presigned_url_expires: 3600
+  sqs:
+    queue_url: ${AWS_SQS_QUEUE_URL:}
+    region: ${AWS_SQS_REGION:us-east-1}
+    message_retention: 1209600 # 14 days
+    visibility_timeout: 300
+  sns:
+    topic_arn: ${AWS_SNS_TOPIC_ARN:}
+    region: ${AWS_SNS_REGION:us-east-1}
+  rekognition:
+    region: ${AWS_REKOGNITION_REGION:us-east-1}
+  bedrock:
+    region: ${AWS_BEDROCK_REGION:us-east-1}
+    model_id: ${AWS_BEDROCK_MODEL_ID:anthropic.claude-3-sonnet-20240229-v1:0}
+
+# ==========================================
+# 🤖 AI & ML SERVICES
+# ==========================================
+ai_services:
+  model_registry:
+    url: ${MODEL_REGISTRY_URL:http://localhost:8001}
+    api_key: ${MODEL_REGISTRY_API_KEY:}
+    timeout: 30000
+  feature_store:
+    url: ${FEATURE_STORE_URL:http://localhost:8002}
+    api_key: ${FEATURE_STORE_API_KEY:}
+    timeout: 30000
+  mlflow:
+    tracking_uri: ${MLFLOW_TRACKING_URI:http://localhost:5000}
+    s3_endpoint_url: ${MLFLOW_S3_ENDPOINT_URL:}
+    artifact_root: ${MLFLOW_ARTIFACT_ROOT:s3://aerofusion-mlflow}
+  openai:
+    api_key: ${OPENAI_API_KEY:}
+    model: ${OPENAI_MODEL:gpt-4}
+    max_tokens: ${OPENAI_MAX_TOKENS:1000}
+    temperature: ${OPENAI_TEMPERATURE:0.7}
+
+# ==========================================
+# 📊 MONITORING & OBSERVABILITY
+# ==========================================
+monitoring:
+  metrics:
+    enabled: ${METRICS_ENABLED:true}
+    port: ${METRICS_PORT:9090}
+    path: ${METRICS_PATH:/metrics}
+    prefix: ${METRICS_PREFIX:aerofusion}
+  tracing:
+    enabled: ${TRACING_ENABLED:true}
+    jaeger:
+      endpoint: ${JAEGER_ENDPOINT:http://localhost:14268/api/traces}
+      service_name: ${JAEGER_SERVICE_NAME:aerofusion-api}
+    sampling_rate: ${TRACING_SAMPLING_RATE:0.1}
+  logging:
+    level: ${LOG_LEVEL:info}
+    format: ${LOG_FORMAT:json}
+    file:
+      enabled: ${LOG_FILE_ENABLED:true}
+      path: ${LOG_FILE_PATH:./logs/application.log}
+      max_size: ${LOG_FILE_MAX_SIZE:100m}
+      max_files: ${LOG_FILE_MAX_FILES:10}
+    console:
+      enabled: ${LOG_CONSOLE_ENABLED:true}
+      color: ${LOG_CONSOLE_COLOR:true}
+
+# ==========================================
+# 📧 NOTIFICATION SERVICES
+# ==========================================
+notifications:
+  email:
+    provider: ${EMAIL_PROVIDER:sendgrid}
+    sendgrid:
+      api_key: ${SENDGRID_API_KEY:}
+      from_email: ${SENDGRID_FROM_EMAIL:noreply@aerofusionxr.com}
+      from_name: ${SENDGRID_FROM_NAME:AeroFusionXR}
+    ses:
+      region: ${SES_REGION:us-east-1}
+      from_email: ${SES_FROM_EMAIL:noreply@aerofusionxr.com}
+  sms:
+    provider: ${SMS_PROVIDER:twilio}
+    twilio:
+      account_sid: ${TWILIO_ACCOUNT_SID:}
+      auth_token: ${TWILIO_AUTH_TOKEN:}
+      from_number: ${TWILIO_FROM_NUMBER:}
+  push:
+    fcm:
+      server_key: ${FCM_SERVER_KEY:}
+      project_id: ${FCM_PROJECT_ID:}
+    apns:
+      key_id: ${APNS_KEY_ID:}
+      team_id: ${APNS_TEAM_ID:}
+      bundle_id: ${APNS_BUNDLE_ID:}
+      private_key: ${APNS_PRIVATE_KEY:}
+
+# ==========================================
+# 💳 PAYMENT SERVICES
+# ==========================================
+payments:
+  stripe:
+    public_key: ${STRIPE_PUBLIC_KEY:}
+    secret_key: ${STRIPE_SECRET_KEY:}
+    webhook_secret: ${STRIPE_WEBHOOK_SECRET:}
+    currency: ${STRIPE_CURRENCY:usd}
+  paypal:
+    client_id: ${PAYPAL_CLIENT_ID:}
+    client_secret: ${PAYPAL_CLIENT_SECRET:}
+    mode: ${PAYPAL_MODE:sandbox}
+
+# ==========================================
+# 🌍 EXTERNAL APIS
+# ==========================================
+external_apis:
+  flight_data:
+    amadeus:
+      client_id: ${AMADEUS_CLIENT_ID:}
+      client_secret: ${AMADEUS_CLIENT_SECRET:}
+      endpoint: ${AMADEUS_ENDPOINT:https://test.api.amadeus.com}
+    flightstats:
+      app_id: ${FLIGHTSTATS_APP_ID:}
+      app_key: ${FLIGHTSTATS_APP_KEY:}
+      endpoint: ${FLIGHTSTATS_ENDPOINT:https://api.flightstats.com}
+  weather:
+    openweather:
+      api_key: ${OPENWEATHER_API_KEY:}
+      endpoint: ${OPENWEATHER_ENDPOINT:https://api.openweathermap.org/data/2.5}
+  maps:
+    google:
+      api_key: ${GOOGLE_MAPS_API_KEY:}
+    mapbox:
+      access_token: ${MAPBOX_ACCESS_TOKEN:}
+
+# ==========================================
+# 🔄 BACKGROUND JOBS
+# ==========================================
+jobs:
+  queue:
+    redis_url: ${REDIS_URL:redis://localhost:6379}
+    default_job_options:
+      attempts: 3
+      backoff:
+        type: exponential
+        delay: 2000
+      removeOnComplete: 50
+      removeOnFail: 50
+  processors:
+    baggage_tracking:
+      concurrency: ${BAGGAGE_TRACKING_CONCURRENCY:5}
+      enabled: ${BAGGAGE_TRACKING_ENABLED:true}
+    flight_updates:
+      concurrency: ${FLIGHT_UPDATES_CONCURRENCY:3}
+      enabled: ${FLIGHT_UPDATES_ENABLED:true}
+    notifications:
+      concurrency: ${NOTIFICATIONS_CONCURRENCY:10}
+      enabled: ${NOTIFICATIONS_ENABLED:true}
+
+# ==========================================
+# 🎯 FEATURE FLAGS
+# ==========================================
+features:
+  ar_wayfinding: ${FEATURE_AR_WAYFINDING:true}
+  ai_concierge: ${FEATURE_AI_CONCIERGE:true}
+  real_time_tracking: ${FEATURE_REAL_TIME_TRACKING:true}
+  voice_commands: ${FEATURE_VOICE_COMMANDS:false}
+  offline_mode: ${FEATURE_OFFLINE_MODE:false}
+  analytics: ${FEATURE_ANALYTICS:true}
+  beta_features: ${FEATURE_BETA:false}
+
+# ==========================================
+# 🏢 BUSINESS CONFIGURATION
+# ==========================================
+business:
+  airports:
+    default_timezone: ${DEFAULT_TIMEZONE:UTC}
+    supported_languages: 
+      - en
+      - es
+      - fr
+      - de
+      - zh
+      - ja
+      - ar
+  booking:
+    cancellation_window_hours: ${CANCELLATION_WINDOW:24}
+    modification_fee: ${MODIFICATION_FEE:50}
+  commerce:
+    tax_rate: ${TAX_RATE:0.08}
+    currency: ${DEFAULT_CURRENCY:USD}
+    payment_timeout: ${PAYMENT_TIMEOUT:900} # 15 minutes
+
+# ==========================================
+# 🔒 SECURITY CONFIGURATION
+# ==========================================
+security:
+  encryption:
+    algorithm: ${ENCRYPTION_ALGORITHM:aes-256-gcm}
+    key: ${ENCRYPTION_KEY:}
+  password:
+    min_length: ${PASSWORD_MIN_LENGTH:8}
+    require_uppercase: ${PASSWORD_REQUIRE_UPPERCASE:true}
+    require_lowercase: ${PASSWORD_REQUIRE_LOWERCASE:true}
+    require_numbers: ${PASSWORD_REQUIRE_NUMBERS:true}
+    require_symbols: ${PASSWORD_REQUIRE_SYMBOLS:true}
+  mfa:
+    enabled: ${MFA_ENABLED:true}
+    issuer: ${MFA_ISSUER:AeroFusionXR}
+  content_security_policy:
+    enabled: ${CSP_ENABLED:true}
+    directives:
+      default_src: "'self'"
+      script_src: "'self' 'unsafe-inline' https://maps.googleapis.com"
+      style_src: "'self' 'unsafe-inline' https://fonts.googleapis.com"
+      img_src: "'self' data: https:"
+      connect_src: "'self' https://api.aerofusionxr.com"
+
+# ==========================================
+# 📱 CLIENT CONFIGURATIONS
+# ==========================================
+clients:
+  web:
+    url: ${WEB_CLIENT_URL:http://localhost:3001}
+    api_timeout: ${WEB_API_TIMEOUT:30000}
+  mobile:
+    deep_link_scheme: ${MOBILE_DEEP_LINK:aerofusion}
+    api_timeout: ${MOBILE_API_TIMEOUT:30000}
+  kiosk:
+    url: ${KIOSK_CLIENT_URL:http://localhost:3003}
+    idle_timeout: ${KIOSK_IDLE_TIMEOUT:300000} # 5 minutes
+  xr:
+    tracking_fps: ${XR_TRACKING_FPS:60}
+    render_scale: ${XR_RENDER_SCALE:1.0} 
