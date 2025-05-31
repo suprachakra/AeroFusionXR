@@ -1,0 +1,265 @@
+{
+  "name": "@aerofusion/mobile-client",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AeroFusionXR Mobile Client - Enterprise-grade aviation AR mobile application",
+  "scripts": {
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "start": "react-native start",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "type-check": "tsc --noEmit",
+    "clean": "react-native clean-project-auto",
+    "clean:android": "cd android && ./gradlew clean && cd ..",
+    "clean:ios": "cd ios && xcodebuild clean && cd ..",
+    "pods": "cd ios && pod install && cd ..",
+    "build:android": "cd android && ./gradlew assembleRelease",
+    "build:ios": "react-native run-ios --configuration Release",
+    "flipper": "react-native start --reset-cache",
+    "postinstall": "cd ios && pod install && cd ..",
+    "prepare": "husky install"
+  },
+  "dependencies": {
+    "react": "18.2.0",
+    "react-native": "0.72.6",
+    "@react-navigation/native": "^6.1.9",
+    "@react-navigation/bottom-tabs": "^6.5.11",
+    "@react-navigation/native-stack": "^6.9.17",
+    "@react-navigation/drawer": "^6.6.6",
+    "@react-navigation/material-top-tabs": "^6.6.5",
+    "react-native-screens": "^3.27.0",
+    "react-native-safe-area-context": "^4.7.4",
+    "react-native-gesture-handler": "^2.13.4",
+    "react-native-reanimated": "^3.6.0",
+    "@reduxjs/toolkit": "^1.9.7",
+    "react-redux": "^8.1.3",
+    "redux-persist": "^6.0.0",
+    "@react-native-async-storage/async-storage": "^1.19.5",
+    "@tanstack/react-query": "^5.8.4",
+    "react-hook-form": "^7.47.0",
+    "@hookform/resolvers": "^3.3.2",
+    "yup": "^1.3.3",
+    "axios": "^1.6.0",
+    "react-native-vector-icons": "^10.0.2",
+    "react-native-svg": "^13.14.0",
+    "react-native-linear-gradient": "^2.8.3",
+    "react-native-paper": "^5.11.1",
+    "@react-native-community/netinfo": "^9.4.1",
+    "react-native-device-info": "^10.11.0",
+    "react-native-keychain": "^8.1.3",
+    "react-native-touch-id": "^4.4.1",
+    "react-native-biometrics": "^3.0.1",
+    "@react-native-firebase/app": "^18.6.1",
+    "@react-native-firebase/messaging": "^18.6.1",
+    "@react-native-firebase/analytics": "^18.6.1",
+    "@react-native-firebase/crashlytics": "^18.6.1",
+    "@react-native-firebase/dynamic-links": "^18.6.1",
+    "@react-native-firebase/remote-config": "^18.6.1",
+    "@notifee/react-native": "^7.8.2",
+    "react-native-push-notification": "^8.1.1",
+    "react-native-permissions": "^3.10.1",
+    "react-native-geolocation-service": "^5.3.1",
+    "@react-native-community/geolocation": "^3.2.1",
+    "react-native-maps": "^1.8.0",
+    "react-native-maps-directions": "^1.9.0",
+    "react-native-image-picker": "^7.0.3",
+    "react-native-image-crop-picker": "^0.40.2",
+    "react-native-camera": "^4.2.1",
+    "react-native-vision-camera": "^3.6.4",
+    "react-native-qrcode-scanner": "^1.5.5",
+    "react-native-qrcode-svg": "^6.2.0",
+    "@viro-community/react-viro": "^2.23.0",
+    "react-native-ar": "^0.3.0",
+    "react-native-sound": "^0.11.2",
+    "react-native-video": "^5.2.1",
+    "react-native-share": "^10.0.0",
+    "react-native-document-picker": "^9.1.1",
+    "react-native-file-viewer": "^2.1.5",
+    "react-native-fs": "^2.20.0",
+    "react-native-zip-archive": "^6.0.11",
+    "react-native-splash-screen": "^3.3.0",
+    "react-native-bootsplash": "^5.4.0",
+    "react-native-orientation-locker": "^1.5.0",
+    "react-native-status-bar-height": "^2.6.0",
+    "react-native-toast-message": "^2.1.6",
+    "react-native-modal": "^13.0.1",
+    "react-native-action-button": "^2.8.5",
+    "react-native-animatable": "^1.3.3",
+    "react-native-super-grid": "^4.9.6",
+    "react-native-skeleton-placeholder": "^5.2.4",
+    "react-native-shimmer": "^0.6.0",
+    "react-native-fast-image": "^8.6.3",
+    "react-native-image-viewing": "^0.2.2",
+    "react-native-snap-carousel": "^3.9.1",
+    "react-native-pager-view": "^6.2.3",
+    "react-native-tab-view": "^3.5.2",
+    "react-native-chart-kit": "^6.12.0",
+    "react-native-calendar-picker": "^7.1.4",
+    "react-native-date-picker": "^4.3.3",
+    "react-native-picker-select": "^8.1.0",
+    "react-native-step-indicator": "^1.0.3",
+    "react-native-collapsible": "^1.6.1",
+    "react-native-swipe-gestures": "^1.0.5",
+    "react-native-webview": "^13.6.3",
+    "react-native-url-polyfill": "^2.0.0",
+    "react-native-get-random-values": "^1.9.0",
+    "react-native-tcp-socket": "^6.0.6",
+    "react-native-background-job": "^0.2.0",
+    "react-native-background-timer": "^2.4.1",
+    "@react-native-community/push-notification-ios": "^1.11.0",
+    "lottie-react-native": "^6.4.1",
+    "date-fns": "^2.30.0",
+    "lodash": "^4.17.21",
+    "uuid": "^9.0.1",
+    "crypto-js": "^4.2.0",
+    "jwt-decode": "^4.0.0",
+    "zustand": "^4.4.7",
+    "immer": "^10.0.3",
+    "react-native-mmkv": "^2.10.2",
+    "react-native-flipper": "^0.212.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.0",
+    "@babel/preset-env": "^7.20.0",
+    "@babel/runtime": "^7.20.0",
+    "@react-native/eslint-config": "^0.72.2",
+    "@react-native/metro-config": "^0.72.11",
+    "@tsconfig/react-native": "^3.0.0",
+    "@types/react": "^18.0.24",
+    "@types/react-test-renderer": "^18.0.0",
+    "@types/lodash": "^4.14.201",
+    "@types/uuid": "^9.0.6",
+    "@types/crypto-js": "^4.2.1",
+    "@types/jwt-decode": "^3.1.0",
+    "@typescript-eslint/eslint-plugin": "^6.10.0",
+    "@typescript-eslint/parser": "^6.10.0",
+    "babel-jest": "^29.2.1",
+    "eslint": "^8.19.0",
+    "jest": "^29.2.1",
+    "metro-react-native-babel-preset": "0.76.8",
+    "prettier": "^2.4.1",
+    "react-test-renderer": "18.2.0",
+    "typescript": "4.8.4",
+    "@testing-library/react-native": "^12.4.2",
+    "@testing-library/jest-native": "^5.4.3",
+    "detox": "^20.13.5",
+    "flipper-plugin-react-query": "^1.0.0",
+    "flipper-plugin-redux-debugger": "^0.8.8",
+    "reactotron-react-native": "^5.0.4",
+    "reactotron-redux": "^3.1.3",
+    "reactotron-flipper": "^1.0.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.0.2"
+  },
+  "resolutions": {
+    "@types/react": "^18.0.24"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "jest": {
+    "preset": "react-native",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ],
+    "transformIgnorePatterns": [
+      "node_modules/(?!(react-native|@react-native|react-native-vector-icons|react-native-svg|@react-navigation|react-native-reanimated|react-native-gesture-handler|react-native-screens|react-native-safe-area-context|@viro-community/react-viro)/)"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/setupTests.ts"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.{ts,tsx}",
+      "!src/**/*.d.ts",
+      "!src/index.tsx"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 70,
+        "functions": 70,
+        "lines": 70,
+        "statements": 70
+      }
+    }
+  },
+  "detox": {
+    "configurations": {
+      "ios.sim.debug": {
+        "device": "simulator",
+        "app": "ios.debug"
+      },
+      "android.emu.debug": {
+        "device": "emulator",
+        "app": "android.debug"
+      }
+    },
+    "devices": {
+      "simulator": {
+        "type": "ios.simulator",
+        "device": {
+          "type": "iPhone 14"
+        }
+      },
+      "emulator": {
+        "type": "android.emulator",
+        "device": {
+          "avdName": "Pixel_4_API_30"
+        }
+      }
+    },
+    "apps": {
+      "ios.debug": {
+        "type": "ios.app",
+        "binaryPath": "ios/build/Build/Products/Debug-iphonesimulator/AeroFusionXR.app",
+        "build": "xcodebuild -workspace ios/AeroFusionXR.xcworkspace -scheme AeroFusionXR -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build"
+      },
+      "android.debug": {
+        "type": "android.apk",
+        "binaryPath": "android/app/build/outputs/apk/debug/app-debug.apk",
+        "build": "cd android && ./gradlew assembleDebug assembleAndroidTest -DtestBuildType=debug && cd .."
+      }
+    }
+  },
+  "reactNativePermissionsIOS": [
+    "AppTrackingTransparency",
+    "Camera",
+    "LocationAccuracy",
+    "LocationAlways",
+    "LocationWhenInUse",
+    "Microphone",
+    "Notifications",
+    "PhotoLibrary",
+    "PhotoLibraryAddOnly"
+  ],
+  "keywords": [
+    "react-native",
+    "typescript",
+    "ar",
+    "aviation",
+    "aerofusion",
+    "mobile",
+    "enterprise"
+  ],
+  "author": "AeroFusionXR Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aerofusion/aerofusion-xr.git",
+    "directory": "clients/mobile"
+  }
+} 
