@@ -1,0 +1,249 @@
+global:
+  environment: development
+  domain: aerofusion.local
+  imagePullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+api-gateway:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: kong
+    tag: "3.0"
+  service:
+    type: LoadBalancer
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-type: nlb
+  config:
+    database: "off"
+    declarative: true
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+
+ai-concierge:
+  enabled: true
+  replicaCount: 3
+  image:
+    repository: aerofusion/ai-concierge
+    tag: latest
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 2000m
+      memory: 4Gi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 80
+  env:
+    - name: NODE_ENV
+      value: production
+    - name: REDIS_URL
+      valueFrom:
+        secretKeyRef:
+          name: redis-credentials
+          key: url
+    - name: OPENAI_API_KEY
+      valueFrom:
+        secretKeyRef:
+          name: ai-credentials
+          key: openai-api-key
+
+wayfinding:
+  enabled: true
+  replicaCount: 3
+  image:
+    repository: aerofusion/wayfinding
+    tag: latest
+  resources:
+    requests:
+      cpu: 300m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 8
+    targetCPUUtilizationPercentage: 80
+
+baggage-tracker:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: aerofusion/baggage-tracker
+    tag: latest
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+  mqtt:
+    enabled: true
+    persistence:
+      enabled: true
+      size: 10Gi
+
+feature-store:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: aerofusion/feature-store
+    tag: latest
+  resources:
+    requests:
+      cpu: 300m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+  persistence:
+    enabled: true
+    size: 50Gi
+
+model-registry:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: aerofusion/model-registry
+    tag: latest
+  resources:
+    requests:
+      cpu: 300m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+  persistence:
+    enabled: true
+    size: 100Gi
+
+commerce:
+  enabled: true
+  replicaCount: 3
+  image:
+    repository: aerofusion/commerce
+    tag: latest
+  resources:
+    requests:
+      cpu: 300m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+  stripe:
+    enabled: true
+    webhookSecret:
+      secretName: stripe-credentials
+      secretKey: webhook-secret
+
+flight-info:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: aerofusion/flight-info
+    tag: latest
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+monitoring:
+  prometheus:
+    enabled: true
+    retention: 15d
+    persistence:
+      enabled: true
+      size: 50Gi
+    alertmanager:
+      enabled: true
+      slack:
+        enabled: true
+        channel: "#alerts"
+        apiURL:
+          secretName: slack-credentials
+          secretKey: webhook-url
+
+  grafana:
+    enabled: true
+    persistence:
+      enabled: true
+      size: 10Gi
+    adminPassword:
+      secretName: grafana-credentials
+      secretKey: admin-password
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+
+  jaeger:
+    enabled: true
+    collector:
+      replicaCount: 2
+    storage:
+      type: elasticsearch
+      options:
+        es:
+          serverUrls: http://elasticsearch:9200
+
+  elasticsearch:
+    enabled: true
+    replicas: 3
+    persistence:
+      enabled: true
+      size: 100Gi
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 2Gi
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+
+  kibana:
+    enabled: true
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: 500m
+        memory: 1Gi
+
+security:
+  certManager:
+    enabled: true
+    email: admin@aerofusion.com
+    clusterIssuer:
+      name: letsencrypt-prod
+      server: https://acme-v02.api.letsencrypt.org/directory
+
+  networkPolicies:
+    enabled: true
+    defaultDenyIngress: true
+    defaultDenyEgress: true
+
+  podSecurityPolicies:
+    enabled: true
+
+  secretsManager:
+    enabled: true
+    provider: aws 

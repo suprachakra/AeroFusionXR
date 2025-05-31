@@ -1,0 +1,189 @@
+{{- if .Values.aiConcierge.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-concierge
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: ai-concierge
+spec:
+  replicas: {{ .Values.aiConcierge.replicaCount }}
+  selector:
+    matchLabels:
+      app: ai-concierge
+  template:
+    metadata:
+      labels:
+        app: ai-concierge
+    spec:
+      containers:
+      - name: ai-concierge
+        image: "{{ .Values.aiConcierge.image.repository }}:{{ .Values.aiConcierge.image.tag }}"
+        ports:
+        - containerPort: 8000
+        env:
+        - name: ENVIRONMENT
+          value: {{ .Values.environment }}
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: redis-credentials
+              key: url
+        - name: MONGODB_URL
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-credentials
+              key: url
+        resources:
+          {{- toYaml .Values.aiConcierge.resources | nindent 10 }}
+{{- end }}
+
+{{- if .Values.wayfinding.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wayfinding
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: wayfinding
+spec:
+  replicas: {{ .Values.wayfinding.replicaCount }}
+  selector:
+    matchLabels:
+      app: wayfinding
+  template:
+    metadata:
+      labels:
+        app: wayfinding
+    spec:
+      containers:
+      - name: wayfinding
+        image: "{{ .Values.wayfinding.image.repository }}:{{ .Values.wayfinding.image.tag }}"
+        ports:
+        - containerPort: 3000
+        env:
+        - name: ENVIRONMENT
+          value: {{ .Values.environment }}
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: redis-credentials
+              key: url
+        resources:
+          {{- toYaml .Values.wayfinding.resources | nindent 10 }}
+{{- end }}
+
+{{- if .Values.baggageTracker.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: baggage-tracker
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: baggage-tracker
+spec:
+  replicas: {{ .Values.baggageTracker.replicaCount }}
+  selector:
+    matchLabels:
+      app: baggage-tracker
+  template:
+    metadata:
+      labels:
+        app: baggage-tracker
+    spec:
+      containers:
+      - name: baggage-tracker
+        image: "{{ .Values.baggageTracker.image.repository }}:{{ .Values.baggageTracker.image.tag }}"
+        ports:
+        - containerPort: 8080
+        env:
+        - name: ENVIRONMENT
+          value: {{ .Values.environment }}
+        - name: MONGODB_URL
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-credentials
+              key: url
+        resources:
+          {{- toYaml .Values.baggageTracker.resources | nindent 10 }}
+{{- end }}
+
+{{- if .Values.commerce.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: commerce
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: commerce
+spec:
+  replicas: {{ .Values.commerce.replicaCount }}
+  selector:
+    matchLabels:
+      app: commerce
+  template:
+    metadata:
+      labels:
+        app: commerce
+    spec:
+      containers:
+      - name: commerce
+        image: "{{ .Values.commerce.image.repository }}:{{ .Values.commerce.image.tag }}"
+        ports:
+        - containerPort: 3000
+        env:
+        - name: ENVIRONMENT
+          value: {{ .Values.environment }}
+        - name: MONGODB_URL
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-credentials
+              key: url
+        - name: STRIPE_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: stripe-credentials
+              key: secret-key
+        resources:
+          {{- toYaml .Values.commerce.resources | nindent 10 }}
+{{- end }}
+
+{{- if .Values.flightInfo.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flight-info
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: flight-info
+spec:
+  replicas: {{ .Values.flightInfo.replicaCount }}
+  selector:
+    matchLabels:
+      app: flight-info
+  template:
+    metadata:
+      labels:
+        app: flight-info
+    spec:
+      containers:
+      - name: flight-info
+        image: "{{ .Values.flightInfo.image.repository }}:{{ .Values.flightInfo.image.tag }}"
+        ports:
+        - containerPort: 8000
+        env:
+        - name: ENVIRONMENT
+          value: {{ .Values.environment }}
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: redis-credentials
+              key: url
+        resources:
+          {{- toYaml .Values.flightInfo.resources | nindent 10 }}
+{{- end }} 
