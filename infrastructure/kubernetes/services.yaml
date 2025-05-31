@@ -1,0 +1,99 @@
+{{- if .Values.aiConcierge.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-concierge
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: ai-concierge
+spec:
+  selector:
+    app: ai-concierge
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8000
+    protocol: TCP
+  type: ClusterIP
+{{- end }}
+
+{{- if .Values.wayfinding.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wayfinding
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: wayfinding
+spec:
+  selector:
+    app: wayfinding
+  ports:
+  - name: http
+    port: 80
+    targetPort: 3000
+    protocol: TCP
+  type: ClusterIP
+{{- end }}
+
+{{- if .Values.baggageTracker.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: baggage-tracker
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: baggage-tracker
+spec:
+  selector:
+    app: baggage-tracker
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+    protocol: TCP
+  type: ClusterIP
+{{- end }}
+
+{{- if .Values.commerce.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: commerce
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: commerce
+spec:
+  selector:
+    app: commerce
+  ports:
+  - name: http
+    port: 80
+    targetPort: 3000
+    protocol: TCP
+  type: ClusterIP
+{{- end }}
+
+{{- if .Values.flightInfo.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flight-info
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: flight-info
+spec:
+  selector:
+    app: flight-info
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8000
+    protocol: TCP
+  type: ClusterIP
+{{- end }} 
