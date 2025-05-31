@@ -1,0 +1,540 @@
+name: 🚀 AeroFusionXR CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop, release/* ]
+  pull_request:
+    branches: [ main, develop ]
+  release:
+    types: [ published ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.11'
+  GO_VERSION: '1.20'
+
+jobs:
+  # ===== CODE QUALITY & SECURITY =====
+  code-quality:
+    name: 🔍 Code Quality & Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: 📦 Install dependencies
+      run: npm ci
+    
+    - name: 🔍 ESLint analysis
+      run: npm run lint:check
+    
+    - name: 🎨 Prettier check
+      run: npm run format:check
+    
+    - name: 🛡️ Security audit
+      run: npm audit --audit-level=high
+    
+    - name: 📊 SonarQube Scan
+      uses: sonarqube-quality-gate-action@master
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    
+    - name: 🔒 CodeQL Analysis
+      uses: github/codeql-action/init@v3
+      with:
+        languages: javascript, typescript, python, go
+    
+    - name: 🔒 CodeQL Autobuild
+      uses: github/codeql-action/autobuild@v3
+    
+    - name: 🔒 CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+
+  # ===== DEPENDENCY SCANNING =====
+  dependency-scan:
+    name: 🛡️ Dependency Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 🔍 Snyk vulnerability scan
+      uses: snyk/actions/node@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: --severity-threshold=high
+
+  # ===== UNIT TESTS =====
+  unit-tests:
+    name: 🧪 Unit Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [api-gateway, ai-concierge, flight-info, baggage-tracker, wayfinding, commerce, booking, model-registry, feature-store]
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: 🐹 Setup Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ env.GO_VERSION }}
+    
+    - name: 📦 Install dependencies
+      run: |
+        cd services/${{ matrix.service }}
+        if [ -f package.json ]; then npm ci; fi
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        if [ -f go.mod ]; then go mod download; fi
+    
+    - name: 🧪 Run unit tests
+      run: |
+        cd services/${{ matrix.service }}
+        npm run test:unit || python -m pytest tests/unit/ || go test ./...
+    
+    - name: 📊 Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./services/${{ matrix.service }}/coverage/lcov.info
+        flags: ${{ matrix.service }}
+
+  # ===== CLIENT TESTS =====
+  client-tests:
+    name: 🖥️ Client Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        client: [web, mobile, kiosk]
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: 📦 Install dependencies
+      run: |
+        cd clients/${{ matrix.client }}
+        npm ci
+    
+    - name: 🧪 Run unit tests
+      run: |
+        cd clients/${{ matrix.client }}
+        npm run test
+    
+    - name: 🎭 Run component tests
+      run: |
+        cd clients/${{ matrix.client }}
+        npm run test:component
+
+  # ===== INTEGRATION TESTS =====
+  integration-tests:
+    name: 🔗 Integration Tests
+    runs-on: ubuntu-latest
+    needs: [unit-tests]
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: aerofusion_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      
+      mongodb:
+        image: mongo:7
+        env:
+          MONGO_INITDB_ROOT_USERNAME: test
+          MONGO_INITDB_ROOT_PASSWORD: test
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: 📦 Install dependencies
+      run: npm ci
+    
+    - name: 🐳 Start test services
+      run: docker-compose -f docker-compose.test.yml up -d
+    
+    - name: ⏳ Wait for services
+      run: sleep 30
+    
+    - name: 🧪 Run integration tests
+      run: npm run test:integration
+      env:
+        DATABASE_URL: postgresql://test:test@localhost:5432/aerofusion_test
+        REDIS_URL: redis://localhost:6379
+        MONGODB_URL: mongodb://test:test@localhost:27017
+    
+    - name: 🧹 Cleanup
+      run: docker-compose -f docker-compose.test.yml down
+
+  # ===== E2E TESTS =====
+  e2e-tests:
+    name: 🎭 End-to-End Tests
+    runs-on: ubuntu-latest
+    needs: [integration-tests]
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: 📦 Install dependencies
+      run: npm ci
+    
+    - name: 🐳 Start application stack
+      run: docker-compose up -d
+    
+    - name: ⏳ Wait for application startup
+      run: sleep 60
+    
+    - name: 🎭 Run Playwright tests
+      run: npm run test:e2e
+    
+    - name: 📸 Upload test artifacts
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: e2e-test-results
+        path: test-results/
+    
+    - name: 🧹 Cleanup
+      run: docker-compose down
+
+  # ===== PERFORMANCE TESTS =====
+  performance-tests:
+    name: ⚡ Performance Tests
+    runs-on: ubuntu-latest
+    needs: [integration-tests]
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: 📦 Install k6
+      run: |
+        sudo gpg -k
+        sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+        echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+        sudo apt-get update
+        sudo apt-get install k6
+    
+    - name: 🐳 Start application
+      run: docker-compose up -d
+    
+    - name: ⏳ Wait for application
+      run: sleep 60
+    
+    - name: ⚡ Run load tests
+      run: k6 run tests/performance/load-test.js
+    
+    - name: ⚡ Run stress tests
+      run: k6 run tests/performance/stress-test.js
+
+  # ===== SECURITY PENETRATION TESTS =====
+  security-tests:
+    name: 🛡️ Security Penetration Tests
+    runs-on: ubuntu-latest
+    needs: [integration-tests]
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 🐳 Start application
+      run: docker-compose up -d
+    
+    - name: ⏳ Wait for application
+      run: sleep 60
+    
+    - name: 🛡️ OWASP ZAP Baseline Scan
+      uses: zaproxy/action-baseline@v0.7.0
+      with:
+        target: 'http://localhost:3000'
+    
+    - name: 🛡️ Nuclei vulnerability scan
+      uses: projectdiscovery/nuclei-action@main
+      with:
+        target: 'http://localhost:3000'
+
+  # ===== BUILD DOCKER IMAGES =====
+  build-images:
+    name: 🐳 Build Docker Images
+    runs-on: ubuntu-latest
+    needs: [code-quality, unit-tests, client-tests]
+    if: github.event_name == 'push'
+    
+    strategy:
+      matrix:
+        service: [api-gateway, ai-concierge, flight-info, baggage-tracker, wayfinding, commerce, booking, model-registry, feature-store]
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 🔧 Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: 🔑 Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: 📝 Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.service }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha
+          type=raw,value=latest,enable={{is_default_branch}}
+    
+    - name: 🐳 Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./services/${{ matrix.service }}
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+    
+    - name: 🛡️ Scan Docker image for vulnerabilities
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.service }}:${{ github.sha }}
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+    
+    - name: 📊 Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  # ===== DEPLOY TO STAGING =====
+  deploy-staging:
+    name: 🚀 Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [e2e-tests, performance-tests, build-images]
+    if: github.ref == 'refs/heads/develop'
+    environment: staging
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 🔧 Setup kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+    
+    - name: 🔑 Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+    
+    - name: 🔧 Update kubeconfig
+      run: aws eks update-kubeconfig --name aerofusion-staging-cluster
+    
+    - name: 🚀 Deploy with Helm
+      run: |
+        helm upgrade --install aerofusion-staging ./infrastructure/helm/aerofusion \
+          --namespace aerofusion-staging \
+          --create-namespace \
+          --set environment=staging \
+          --set image.tag=${{ github.sha }} \
+          --values ./infrastructure/helm/values-staging.yaml
+    
+    - name: ✅ Verify deployment
+      run: |
+        kubectl rollout status deployment/api-gateway -n aerofusion-staging
+        kubectl rollout status deployment/ai-concierge -n aerofusion-staging
+    
+    - name: 🧪 Run smoke tests
+      run: |
+        kubectl rollout status deployment/api-gateway -n aerofusion-staging
+        kubectl rollout status deployment/ai-concierge -n aerofusion-staging
+        npm run test:smoke -- --env=staging
+
+  # ===== DEPLOY TO PRODUCTION =====
+  deploy-production:
+    name: 🌟 Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [deploy-staging]
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 🔧 Setup kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+    
+    - name: 🔑 Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
+        aws-region: us-east-1
+    
+    - name: 🔧 Update kubeconfig
+      run: aws eks update-kubeconfig --name aerofusion-production-cluster
+    
+    - name: 🚀 Blue-Green Deployment
+      run: |
+        # Deploy to green environment
+        helm upgrade --install aerofusion-green ./infrastructure/helm/aerofusion \
+          --namespace aerofusion-production \
+          --set environment=production \
+          --set deployment.strategy=green \
+          --set image.tag=${{ github.sha }} \
+          --values ./infrastructure/helm/values-production.yaml
+    
+    - name: ✅ Verify green deployment
+      run: |
+        kubectl rollout status deployment/api-gateway-green -n aerofusion-production
+        kubectl rollout status deployment/ai-concierge-green -n aerofusion-production
+    
+    - name: 🧪 Run production smoke tests
+      run: |
+        kubectl rollout status deployment/api-gateway-green -n aerofusion-production
+        kubectl rollout status deployment/ai-concierge-green -n aerofusion-production
+        npm run test:smoke -- --env=production-green
+    
+    - name: 🔄 Switch traffic to green
+      run: |
+        kubectl patch service api-gateway -n aerofusion-production \
+          -p '{"spec":{"selector":{"version":"green"}}}'
+    
+    - name: ⏳ Monitor health metrics
+      run: |
+        sleep 300  # Wait 5 minutes
+        ./scripts/check-health-metrics.sh
+    
+    - name: 🧹 Cleanup blue deployment
+      run: |
+        helm uninstall aerofusion-blue -n aerofusion-production || true
+
+  # ===== SECURITY COMPLIANCE =====
+  compliance-check:
+    name: 📋 Compliance Check
+    runs-on: ubuntu-latest
+    needs: [deploy-production]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 📋 SOC 2 Compliance Check
+      run: ./scripts/soc2-compliance-check.sh
+    
+    - name: 🛡️ PCI DSS Compliance Check
+      run: ./scripts/pci-dss-compliance-check.sh
+    
+    - name: 🌍 GDPR Compliance Check
+      run: ./scripts/gdpr-compliance-check.sh
+    
+    - name: 📊 Generate compliance report
+      run: ./scripts/generate-compliance-report.sh
+
+  # ===== NOTIFICATION =====
+  notify:
+    name: 📢 Notify Teams
+    runs-on: ubuntu-latest
+    needs: [deploy-production, compliance-check]
+    if: always()
+    
+    steps:
+    - name: 📢 Slack notification
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        channel: '#deployments'
+        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        fields: repo,message,commit,author,action,eventName,ref,workflow
+    
+    - name: 📧 Email notification
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.gmail.com
+        server_port: 587
+        username: ${{ secrets.EMAIL_USERNAME }}
+        password: ${{ secrets.EMAIL_PASSWORD }}
+        subject: AeroFusionXR Deployment Status - ${{ job.status }}
+        to: ops@aerofusionxr.com
+        from: ci-cd@aerofusionxr.com
+        body: |
+          Deployment Status: ${{ job.status }}
+          Commit: ${{ github.sha }}
+          Branch: ${{ github.ref }}
+          Workflow: ${{ github.workflow }} 
