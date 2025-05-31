@@ -1,5 +1,0 @@
-apiVersion: v2
-name: api-gateway
-description: "Ingress controller with auth, rate-limiting, and TLS"
-version: 1.0.0
-appVersion: "1.0"

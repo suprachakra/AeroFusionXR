@@ -1,5 +1,0 @@
-apiVersion: v2
-name: wayfinding
-description: "Indoor SLAM and beacon configuration chart"
-version: 1.0.0
-appVersion: "1.0"
