@@ -1,0 +1,196 @@
+version: 2
+updates:
+  # Enable version updates for npm (Frontend & Node.js services)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "engineering-team"
+    assignees:
+      - "tech-lead"
+    commit-message:
+      prefix: "npm"
+      prefix-development: "npm-dev"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "npm"
+    ignore:
+      - dependency-name: "eslint*"
+        update-types: ["version-update:semver-major"]
+
+  # Enable version updates for npm (Web Client)
+  - package-ecosystem: "npm"
+    directory: "/clients/web"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "10:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "frontend-team"
+    labels:
+      - "dependencies"
+      - "web-client"
+
+  # Enable version updates for npm (Mobile Client)
+  - package-ecosystem: "npm"
+    directory: "/clients/mobile"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "mobile-team"
+    labels:
+      - "dependencies"
+      - "mobile-client"
+
+  # Enable version updates for npm (Kiosk Client)
+  - package-ecosystem: "npm"
+    directory: "/clients/kiosk"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "10:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "frontend-team"
+    labels:
+      - "dependencies"
+      - "kiosk-client"
+
+  # Enable version updates for pip (Python services)
+  - package-ecosystem: "pip"
+    directory: "/services/ai-concierge"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "ai-team"
+    labels:
+      - "dependencies"
+      - "python"
+      - "ai-concierge"
+
+  - package-ecosystem: "pip"
+    directory: "/services/baggage-tracker"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "10:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "ai-team"
+    labels:
+      - "dependencies"
+      - "python"
+      - "baggage-tracker"
+
+  - package-ecosystem: "pip"
+    directory: "/services/model-registry"
+    schedule:
+      interval: "weekly"
+      day: "thursday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "ml-team"
+    labels:
+      - "dependencies"
+      - "python"
+      - "model-registry"
+
+  - package-ecosystem: "pip"
+    directory: "/services/feature-store"
+    schedule:
+      interval: "weekly"
+      day: "thursday"
+      time: "10:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "ml-team"
+    labels:
+      - "dependencies"
+      - "python"
+      - "feature-store"
+
+  # Enable version updates for Go modules
+  - package-ecosystem: "gomod"
+    directory: "/services/booking"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "backend-team"
+    labels:
+      - "dependencies"
+      - "go"
+      - "booking-service"
+
+  # Enable version updates for Docker
+  - package-ecosystem: "docker"
+    directory: "/infrastructure/docker"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+      time: "10:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "devops-team"
+    labels:
+      - "dependencies"
+      - "docker"
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      day: "first-monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "devops-team"
+    labels:
+      - "dependencies"
+      - "github-actions"
+
+  # Enable version updates for Terraform
+  - package-ecosystem: "terraform"
+    directory: "/infrastructure/terraform"
+    schedule:
+      interval: "monthly"
+      day: "second-monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "devops-team"
+      - "infrastructure-team"
+    labels:
+      - "dependencies"
+      - "terraform"
+    ignore:
+      - dependency-name: "aws"
+        update-types: ["version-update:semver-major"] 
