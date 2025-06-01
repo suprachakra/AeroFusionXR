@@ -119,131 +119,185 @@ AeroFusionXR/
 ---
 ### **Overall Platform Architecture**
 ```mermaid
-graph TB
-    subgraph "Client Layer"
-        WEB[Web Client<br/>React/TypeScript]
-        MOBILE[Mobile Client<br/>React Native]
-        XR[XR Client<br/>Unity/WebXR]
-        KIOSK[Kiosk Interface<br/>Electron]
-    end
-
-    subgraph "API Gateway Layer"
-        GW[API Gateway<br/>Authentication & Routing]
-        LB[Load Balancer<br/>Traffic Distribution]
-    end
-    
-    subgraph "Core Services"
-        AI[AI Concierge<br/>NLP & ML]
-        FLIGHT[Flight Info<br/>Real-time Data]
-        BAG[Baggage Tracker<br/>Computer Vision]
-        WAY[Wayfinding<br/>Indoor Positioning]
-        COM[Commerce<br/>E-commerce Engine]
-        BOOK[Booking<br/>Reservation System]
-    end
-    
-    subgraph "ML Platform"
-        MODEL[Model Registry<br/>ML Model Management]
-        FEATURE[Feature Store<br/>ML Feature Serving]
-    end
-
-    subgraph "Data Layer"
-        POSTGRES[(PostgreSQL<br/>Transactional Data)]
-        MONGO[(MongoDB<br/>Document Store)]
-        REDIS[(Redis<br/>Caching & Sessions)]
-        S3[(S3<br/>Object Storage)]
-    end
-    
-    subgraph "Infrastructure"
-        K8S[Kubernetes<br/>Container Orchestration]
-        PROM[Prometheus<br/>Metrics]
-        GRAF[Grafana<br/>Monitoring]
-        JAEGER[Jaeger<br/>Tracing]
-    end
-    
+flowchart TB
+ subgraph subGraph0["**Client Layer**"]
+        WEB["Web Client<br>React/TypeScript"]
+        MOBILE["Mobile Client<br>React Native"]
+        XR["XR Client<br>Unity/WebXR"]
+        KIOSK["Kiosk Interface<br>Electron"]
+  end
+ subgraph subGraph1["**API Gateway Layer**"]
+        GW["API Gateway<br>Authentication &amp; Routing"]
+        LB["Load Balancer<br>Traffic Distribution"]
+  end
+ subgraph subGraph2["**Core Services**"]
+        AI["AI Concierge<br>NLP &amp; ML"]
+        FLIGHT["Flight Info<br>Real-time Data"]
+        BAG["Baggage Tracker<br>Computer Vision"]
+        WAY["Wayfinding<br>Indoor Positioning"]
+        COM["Commerce<br>E-commerce Engine"]
+        BOOK["Booking<br>Reservation System"]
+  end
+ subgraph subGraph3["**ML Platform**"]
+        MODEL["Model Registry<br>ML Model Management"]
+        FEATURE["Feature Store<br>ML Feature Serving"]
+  end
+ subgraph subGraph4["**Data Layer**"]
+        POSTGRES[("PostgreSQL<br>Transactional Data")]
+        MONGO[("MongoDB<br>Document Store")]
+        REDIS[("Redis<br>Caching &amp; Sessions")]
+        S3[("S3<br>Object Storage")]
+  end
+ subgraph **Infrastructure**["**Infrastructure**"]
+        K8S["Kubernetes<br>Container Orchestration"]
+        PROM["Prometheus<br>Metrics"]
+        GRAF["Grafana<br>Monitoring"]
+        JAEGER["Jaeger<br>Tracing"]
+  end
     WEB --> LB
     MOBILE --> LB
     XR --> LB
     KIOSK --> LB
-    
     LB --> GW
-    GW --> AI
-    GW --> FLIGHT
-    GW --> BAG
-    GW --> WAY
-    GW --> COM
-    GW --> BOOK
-    
-    AI --> MODEL
-    AI --> FEATURE
-    BAG --> MODEL
-    WAY --> MODEL
-    
-    AI --> POSTGRES
+    GW --> AI & FLIGHT & BAG & WAY & COM & BOOK
+    AI --> MODEL & FEATURE & POSTGRES
+    BAG --> MODEL & MONGO
+    WAY --> MODEL & REDIS
     FLIGHT --> POSTGRES
-    BAG --> MONGO
-    WAY --> REDIS
     COM --> MONGO
     BOOK --> POSTGRES
-    
     MODEL --> S3
     FEATURE --> POSTGRES
-    
-    K8S --> PROM
+    K8S --> PROM & JAEGER
     PROM --> GRAF
-    K8S --> JAEGER
+
+     WEB:::VanGoghYellow
+     MOBILE:::VanGoghYellow
+     XR:::VanGoghYellow
+     KIOSK:::VanGoghYellow
+     GW:::DegasGreen
+     LB:::DegasGreen
+     AI:::Rose
+     FLIGHT:::Rose
+     BAG:::Rose
+     WAY:::Rose
+     COM:::Rose
+     BOOK:::Rose
+     MODEL:::Ash
+     FEATURE:::MatisseLavender
+     FEATURE:::HokusaiWave
+     FEATURE:::Ash
+     POSTGRES:::Pine
+     MONGO:::Pine
+     REDIS:::Pine
+     S3:::Pine
+     K8S:::PicassoBlue
+     PROM:::MonetBlue
+     GRAF:::PicassoBlue
+     JAEGER:::PicassoBlue
+    classDef Sky stroke-width:1px, stroke-dasharray:none, stroke:#374D7C, fill:#E2EBFF, color:#374D7C
+    classDef KlimtGold stroke-width:1px, stroke-dasharray:none, stroke:#D4A017, fill:#FBF2C1, color:#705A16
+    classDef Aqua stroke-width:1px, stroke-dasharray:none, stroke:#46EDC8, fill:#DEFFF8, color:#378E7A
+    classDef Peach stroke-width:1px, stroke-dasharray:none, stroke:#FBB35A, fill:#FFEFDB, color:#8F632D
+    classDef RenoirPink stroke-width:1px, stroke-dasharray:none, stroke:#E4A0A0, fill:#FBE5E5, color:#7D3E3E
+    classDef TurnerMist stroke-width:1px, stroke-dasharray:none, stroke:#B8C4D1, fill:#EAF2F8, color:#4A5B6F
+    classDef CezannePeach stroke-width:1px, stroke-dasharray:none, stroke:#E2A07D, fill:#FBE7DA, color:#6D4532
+    classDef MonetBlue stroke-width:1px, stroke-dasharray:none, stroke:#87AFC7, fill:#D4EAF7, color:#30577B
+    classDef PicassoBlue stroke-width:1px, stroke-dasharray:none, stroke:#5A84A2, fill:#CDE0F2, color:#2D4661
+    classDef VanGoghYellow stroke-width:1px, stroke-dasharray:none, stroke:#E3B448, fill:#FDF6C9, color:#7D5A17
+    classDef DegasGreen stroke-width:1px, stroke-dasharray:none, stroke:#A7C796, fill:#E6F4E2, color:#3E6A42
+    classDef Rose stroke-width:1px, stroke-dasharray:none, stroke:#FF5978, fill:#FFDFE5, color:#8E2236
+    classDef MatisseLavender stroke-width:1px, stroke-dasharray:none, stroke:#B39DBC, fill:#ECE3F5, color:#4E3A5E
+    classDef HokusaiWave stroke-width:1px, stroke-dasharray:none, stroke:#6188A9, fill:#D4E8F2, color:#2A425D
+    classDef Ash stroke-width:1px, stroke-dasharray:none, stroke:#999999, fill:#EEEEEE, color:#000000
+    classDef Pine stroke-width:1px, stroke-dasharray:none, stroke:#254336, fill:#27654A, color:#FFFFFF
+    style **Infrastructure** fill:transparent
+    style subGraph0 fill:transparent
+    style subGraph1 fill:transparent
+    style subGraph2 fill:transparent
+    style subGraph4 fill:transparent
+    style subGraph3 fill:transparent
 ```
 ---
 ### **Service Mesh Architecture**
 
 ```mermaid
-graph LR
-    subgraph "Service Mesh (Istio)"
-        subgraph "AI Services"
-            AI[AI Concierge]
-            NLP[NLP Engine]
-            CV[Computer Vision]
-        end
-        
-        subgraph "Business Services"
-            FLIGHT[Flight Info]
-            BAG[Baggage Tracker]
-            WAY[Wayfinding]
-            COM[Commerce]
-            BOOK[Booking]
-        end
-        
-        subgraph "Platform Services"
-            MODEL[Model Registry]
-            FEATURE[Feature Store]
-            AUTH[Authentication]
-            NOTIFY[Notifications]
-        end
-    end
-    
-    subgraph "External Integrations"
-        AIRLINES[Airlines APIs]
-        PAYMENT[Payment Gateways]
-        AIRPORT[Airport Systems]
-        WEATHER[Weather APIs]
-    end
-    
-    AI --> NLP
-    AI --> CV
+flowchart LR
+ subgraph subGraph0["AI Services"]
+        AI["AI Concierge"]
+        NLP["NLP Engine"]
+        CV["Computer Vision"]
+  end
+ subgraph subGraph1["Business Services"]
+        FLIGHT["Flight Info"]
+        BAG["Baggage Tracker"]
+        WAY["Wayfinding"]
+        COM["Commerce"]
+        BOOK["Booking"]
+  end
+ subgraph subGraph2["Platform Services"]
+        MODEL["Model Registry"]
+        FEATURE["Feature Store"]
+        AUTH["Authentication"]
+        NOTIFY["Notifications"]
+  end
+ subgraph subGraph3["Service Mesh (Istio)"]
+        subGraph0
+        subGraph1
+        subGraph2
+  end
+ subgraph subGraph4["External Integrations"]
+        AIRLINES["Airlines APIs"]
+        PAYMENT["Payment Gateways"]
+        AIRPORT["Airport Systems"]
+        WEATHER["Weather APIs"]
+  end
+    AI --> NLP & CV & MODEL & WEATHER
     BAG --> CV
-    WAY --> MODEL
-    AI --> MODEL
-    
+    WAY --> MODEL & AIRPORT
     FLIGHT --> AIRLINES
     COM --> PAYMENT
-    WAY --> AIRPORT
-    AI --> WEATHER
-    
-    AUTH --> AI
-    AUTH --> FLIGHT
-    AUTH --> BAG
-    AUTH --> WAY
-    AUTH --> COM
-    AUTH --> BOOK
+    AUTH --> AI & FLIGHT & BAG & WAY & COM & BOOK
+     AI:::RenoirPink
+     NLP:::RenoirPink
+     CV:::RenoirPink
+     FLIGHT:::VanGoghYellow
+     BAG:::VanGoghYellow
+     WAY:::VanGoghYellow
+     COM:::VanGoghYellow
+     BOOK:::VanGoghYellow
+     MODEL:::DegasGreen
+     FEATURE:::DegasGreen
+     AUTH:::DegasGreen
+     NOTIFY:::DegasGreen
+     AIRLINES:::MonetBlue
+     PAYMENT:::MonetBlue
+     AIRPORT:::MonetBlue
+     WEATHER:::MonetBlue
+    classDef Sky stroke-width:1px, stroke-dasharray:none, stroke:#374D7C, fill:#E2EBFF, color:#374D7C
+    classDef KlimtGold stroke-width:1px, stroke-dasharray:none, stroke:#D4A017, fill:#FBF2C1, color:#705A16
+    classDef Aqua stroke-width:1px, stroke-dasharray:none, stroke:#46EDC8, fill:#DEFFF8, color:#378E7A
+    classDef Peach stroke-width:1px, stroke-dasharray:none, stroke:#FBB35A, fill:#FFEFDB, color:#8F632D
+    classDef TurnerMist stroke-width:1px, stroke-dasharray:none, stroke:#B8C4D1, fill:#EAF2F8, color:#4A5B6F
+    classDef CezannePeach stroke-width:1px, stroke-dasharray:none, stroke:#E2A07D, fill:#FBE7DA, color:#6D4532
+    classDef PicassoBlue stroke-width:1px, stroke-dasharray:none, stroke:#5A84A2, fill:#CDE0F2, color:#2D4661
+    classDef Rose stroke-width:1px, stroke-dasharray:none, stroke:#FF5978, fill:#FFDFE5, color:#8E2236
+    classDef MatisseLavender stroke-width:1px, stroke-dasharray:none, stroke:#B39DBC, fill:#ECE3F5, color:#4E3A5E
+    classDef HokusaiWave stroke-width:1px, stroke-dasharray:none, stroke:#6188A9, fill:#D4E8F2, color:#2A425D
+    classDef Ash stroke-width:1px, stroke-dasharray:none, stroke:#999999, fill:#EEEEEE, color:#000000
+    classDef Pine stroke-width:1px, stroke-dasharray:none, stroke:#254336, fill:#27654A, color:#FFFFFF
+    classDef MonetBlue stroke-width:1px, stroke-dasharray:none, stroke:#87AFC7, fill:#D4EAF7, color:#30577B
+    classDef VanGoghYellow stroke-width:1px, stroke-dasharray:none, stroke:#E3B448, fill:#FDF6C9, color:#7D5A17
+    classDef DegasGreen stroke-width:1px, stroke-dasharray:none, stroke:#A7C796, fill:#E6F4E2, color:#3E6A42
+    classDef RenoirPink stroke-width:1px, stroke-dasharray:none, stroke:#E4A0A0, fill:#FBE5E5, color:#7D3E3E
+    style subGraph0 fill:transparent
+    style subGraph1 fill:transparent
+    style subGraph2 fill:transparent
+    style subGraph4 fill:transparent
+    style subGraph3 fill:transparent
+
+
+
 ```
 ---
 ### 🧪 Testing & Quality Gates
