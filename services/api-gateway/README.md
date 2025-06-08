@@ -591,7 +591,3 @@ curl -H "Authorization: Bearer TOKEN" \
 - [Python Security Guidelines](https://python-security.readthedocs.io/)
 
 ---
-
-**Last Updated**: December 2024  
-**Version**: 1.0.0  
-**Maintainer**: AeroFusionXR Platform Team 
