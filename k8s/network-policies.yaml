@@ -1,0 +1,191 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: aerofusionxr-default-deny
+  namespace: aerofusionxr
+  labels:
+    app: aerofusionxr
+    component: security
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: aerofusionxr-api-gateway-policy
+  namespace: aerofusionxr
+  labels:
+    app: aerofusionxr
+    component: security
+spec:
+  podSelector:
+    matchLabels:
+      app: api-gateway
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    - podSelector: {}
+    ports:
+    - protocol: TCP
+      port: 8000
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: ai-concierge
+    ports:
+    - protocol: TCP
+      port: 8001
+  - to:
+    - podSelector:
+        matchLabels:
+          app: wayfinding-platform
+    ports:
+    - protocol: TCP
+      port: 8002
+  - to:
+    - podSelector:
+        matchLabels:
+          app: flight-info
+    ports:
+    - protocol: TCP
+      port: 8003
+  - to:
+    - podSelector:
+        matchLabels:
+          app: baggage-tracker
+    ports:
+    - protocol: TCP
+      port: 8004
+  - to:
+    - podSelector:
+        matchLabels:
+          app: commerce
+    ports:
+    - protocol: TCP
+      port: 8005
+  - to:
+    - podSelector:
+        matchLabels:
+          app: user-profile
+    ports:
+    - protocol: TCP
+      port: 8006
+  - to:
+    - podSelector:
+        matchLabels:
+          app: notifications
+    ports:
+    - protocol: TCP
+      port: 8007
+  - to:
+    - podSelector:
+        matchLabels:
+          app: recommendations-engine
+    ports:
+    - protocol: TCP
+      port: 8008
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: aerofusionxr-database-policy
+  namespace: aerofusionxr
+  labels:
+    app: aerofusionxr
+    component: security
+spec:
+  podSelector:
+    matchLabels:
+      app: mongodb
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          tier: backend
+    ports:
+    - protocol: TCP
+      port: 27017
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: aerofusionxr-redis-policy
+  namespace: aerofusionxr
+  labels:
+    app: aerofusionxr
+    component: security
+spec:
+  podSelector:
+    matchLabels:
+      app: redis
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          tier: backend
+    ports:
+    - protocol: TCP
+      port: 6379
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: aerofusionxr-monitoring-policy
+  namespace: aerofusionxr-monitoring
+  labels:
+    app: aerofusionxr
+    component: security
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: aerofusionxr
+    ports:
+    - protocol: TCP
+      port: 9090  # Prometheus
+    - protocol: TCP
+      port: 3000  # Grafana
+    - protocol: TCP
+      port: 14268 # Jaeger
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: aerofusionxr
+    ports:
+    - protocol: TCP
+      port: 8000
+    - protocol: TCP
+      port: 8001
+    - protocol: TCP
+      port: 8002
+    - protocol: TCP
+      port: 8003
+    - protocol: TCP
+      port: 8004
+    - protocol: TCP
+      port: 8005
+    - protocol: TCP
+      port: 8006
+    - protocol: TCP
+      port: 8007
+    - protocol: TCP
+      port: 8008 

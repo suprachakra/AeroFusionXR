@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aerofusionxr
+  labels:
+    name: aerofusionxr
+    environment: production
+    project: aerofusionxr-platform
+    version: "1.0.0"
+  annotations:
+    description: "AeroFusionXR Enterprise Aviation Platform"
+    contact: "platform-team@aerofusionxr.com"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aerofusionxr-staging
+  labels:
+    name: aerofusionxr-staging
+    environment: staging
+    project: aerofusionxr-platform
+    version: "1.0.0"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aerofusionxr-monitoring
+  labels:
+    name: aerofusionxr-monitoring
+    environment: production
+    project: aerofusionxr-platform
+    component: monitoring
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aerofusionxr-security
+  labels:
+    name: aerofusionxr-security
+    environment: production
+    project: aerofusionxr-platform
+    component: security 

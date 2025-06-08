@@ -1,0 +1,206 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-concierge
+  namespace: aerofusionxr
+  labels:
+    app: ai-concierge
+    tier: backend
+    version: "1.0.0"
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: ai-concierge
+  template:
+    metadata:
+      labels:
+        app: ai-concierge
+        tier: backend
+        version: "1.0.0"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8001"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: aerofusionxr-service-account
+      containers:
+      - name: ai-concierge
+        image: aerofusionxr/ai-concierge:1.0.0
+        ports:
+        - containerPort: 8001
+          name: http
+        env:
+        - name: SERVICE_NAME
+          value: "ai-concierge"
+        - name: PORT
+          value: "8001"
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: aerofusionxr-config
+              key: NODE_ENV
+        - name: MONGODB_URI
+          value: "mongodb://$(MONGODB_USERNAME):$(MONGODB_PASSWORD)@$(MONGODB_HOST):$(MONGODB_PORT)/$(MONGODB_DATABASE)"
+        - name: MONGODB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: aerofusionxr-config
+              key: MONGODB_HOST
+        - name: MONGODB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: aerofusionxr-config
+              key: MONGODB_PORT
+        - name: MONGODB_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: aerofusionxr-config
+              key: MONGODB_DATABASE
+        - name: MONGODB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: aerofusionxr-secrets
+              key: MONGODB_USERNAME
+        - name: MONGODB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: aerofusionxr-secrets
+              key: MONGODB_PASSWORD
+        - name: REDIS_URL
+          value: "redis://$(REDIS_HOST):$(REDIS_PORT)"
+        - name: REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: aerofusionxr-config
+              key: REDIS_HOST
+        - name: REDIS_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: aerofusionxr-config
+              key: REDIS_PORT
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: aerofusionxr-secrets
+              key: OPENAI_API_KEY
+        - name: TRANSLATION_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: aerofusionxr-secrets
+              key: TRANSLATION_API_KEY
+        - name: BIOMETRIC_ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: aerofusionxr-secrets
+              key: BIOMETRIC_ENCRYPTION_KEY
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: aerofusionxr-config
+              key: OTEL_EXPORTER_OTLP_ENDPOINT
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: models
+          mountPath: /app/models
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: models
+        emptyDir:
+          sizeLimit: 5Gi
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - ai-concierge
+              topologyKey: kubernetes.io/hostname
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-concierge-service
+  namespace: aerofusionxr
+  labels:
+    app: ai-concierge
+    tier: backend
+spec:
+  selector:
+    app: ai-concierge
+  ports:
+  - name: http
+    port: 8001
+    targetPort: 8001
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ai-concierge-hpa
+  namespace: aerofusionxr
+  labels:
+    app: ai-concierge
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ai-concierge
+  minReplicas: 2
+  maxReplicas: 8
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80 
