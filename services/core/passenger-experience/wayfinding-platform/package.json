@@ -1,0 +1,185 @@
+{
+  "name": "@aerofusionxr/wayfinding-platform",
+  "version": "1.0.0",
+  "description": "Enterprise-grade wayfinding platform for aviation environments",
+  "main": "dist/server.js",
+  "scripts": {
+    "start": "node dist/server.js",
+    "dev": "nodemon --exec ts-node src/server.ts",
+    "build": "tsc && copyfiles -u 1 \"src/**/*.{json,yaml,sql}\" dist/",
+    "test": "jest --coverage --detectOpenHandles",
+    "test:unit": "jest --testPathPattern=unit --coverage",
+    "test:integration": "jest --testPathPattern=integration --runInBand",
+    "test:e2e": "jest --testPathPattern=e2e --runInBand",
+    "lint": "eslint src/**/*.ts --fix",
+    "lint:check": "eslint src/**/*.ts",
+    "security:audit": "npm audit --audit-level=moderate",
+    "security:scan": "snyk test && semgrep --config=auto src/",
+    "migrate": "typeorm migration:run",
+    "migrate:generate": "typeorm migration:generate",
+    "migrate:revert": "typeorm migration:revert",
+    "docs:generate": "typedoc --out docs src/",
+    "docker:build": "docker build -t aerofusionxr/wayfinding-platform .",
+    "docker:run": "docker run -p 3000:3000 aerofusionxr/wayfinding-platform",
+    "k8s:deploy": "kubectl apply -f k8s/",
+    "performance:test": "artillery run performance/load-test.yml",
+    "compliance:check": "npm run security:audit && npm run lint:check && npm run test:unit"
+  },
+  "dependencies": {
+
+    "@aerofusionxr/shared": "file:../../packages/shared",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.5",
+    "@types/socket.io": "^3.0.1",
+    "@types/uuid": "^9.0.7",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "express-validator": "^7.0.1",
+    "helmet": "^7.1.0",
+    "cors": "^2.8.5",
+    "compression": "^1.7.4",
+    "morgan": "^1.10.0",
+    "winston": "^3.11.0",
+    "winston-elasticsearch": "^0.17.4",
+    "typeorm": "^0.3.17",
+    "pg": "^8.11.3",
+    "redis": "^4.6.12",
+    "mongodb": "^6.3.0",
+    "kafkajs": "^2.2.4",
+    "socket.io": "^4.7.4",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3",
+    "crypto": "^1.0.1",
+    "node-vault": "^0.10.2",
+    "aws-sdk": "^2.1519.0",
+    "@aws-sdk/client-s3": "^3.456.0",
+    "@aws-sdk/client-secrets-manager": "^3.456.0",
+    "@aws-sdk/client-cloudwatch": "^3.456.0",
+    "prom-client": "^15.1.0",
+    "jaeger-client": "^3.19.0",
+    "opentracing": "^0.14.7",
+    "class-validator": "^0.14.0",
+    "class-transformer": "^0.5.1",
+    "reflect-metadata": "^0.1.13",
+    "inversify": "^6.0.2",
+    "inversify-express-utils": "^6.4.6",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0",
+    "dotenv": "^16.3.1",
+    "zod": "^3.22.4",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.4",
+    "uuid": "^9.0.1",
+    "multer": "^1.4.5-lts.1",
+    "sharp": "^0.33.1",
+    "jszip": "^3.10.1",
+    "node-cron": "^3.0.3",
+    "bull": "^4.12.2",
+    "ioredis": "^5.3.2",
+    "axios": "^1.6.2",
+    "retry-axios": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.8",
+    "@types/supertest": "^2.0.16",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/lodash": "^4.14.202",
+    "@types/multer": "^1.4.11",
+    "@types/compression": "^1.7.5",
+    "@types/cors": "^2.8.17",
+    "@types/morgan": "^1.9.9",
+    "@typescript-eslint/eslint-plugin": "^6.13.1",
+    "@typescript-eslint/parser": "^6.13.1",
+    "artillery": "^2.0.3",
+    "copyfiles": "^2.4.1",
+    "eslint": "^8.54.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "eslint-plugin-security": "^1.7.1",
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.2",
+    "prettier": "^3.1.0",
+    "semgrep": "^1.50.0",
+    "snyk": "^1.1266.0",
+    "supertest": "^6.3.3",
+    "ts-jest": "^29.1.1",
+    "ts-node": "^10.9.1",
+    "typedoc": "^0.25.4",
+    "typescript": "^5.3.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "keywords": [
+    "wayfinding",
+    "ar",
+    "navigation",
+    "enterprise",
+    "aviation",
+    "indoor-positioning",
+    "ble-beacons",
+    "slam",
+    "computer-vision"
+  ],
+  "author": "AeroFusionXR Engineering Team",
+  "license": "PROPRIETARY",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aerofusionxr/wayfinding-platform.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aerofusionxr/wayfinding-platform/issues"
+  },
+  "homepage": "https://github.com/aerofusionxr/wayfinding-platform#readme",
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "src/**/*.ts",
+      "!src/**/*.d.ts",
+      "!src/types/**",
+      "!src/**/*.test.ts"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 85,
+        "functions": 85,
+        "lines": 85,
+        "statements": 85
+      }
+    },
+    "testMatch": [
+      "**/__tests__/**/*.test.ts",
+      "**/?(*.)+(spec|test).ts"
+    ],
+    "setupFilesAfterEnv": ["<rootDir>/src/test/setup.ts"]
+  },
+  "eslintConfig": {
+    "extends": [
+      "@typescript-eslint/recommended",
+      "prettier",
+      "plugin:security/recommended"
+    ],
+    "plugins": ["@typescript-eslint", "security"],
+    "rules": {
+      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/explicit-function-return-type": "warn",
+      "security/detect-object-injection": "error",
+      "security/detect-non-literal-regexp": "error"
+    }
+  },
+  "prettier": {
+    "semi": true,
+    "trailingComma": "es5",
+    "singleQuote": true,
+    "printWidth": 100,
+    "tabWidth": 2,
+    "useTabs": false
+  },
+  "volta": {
+    "node": "18.19.0",
+    "npm": "10.2.3"
+  }
+} 
