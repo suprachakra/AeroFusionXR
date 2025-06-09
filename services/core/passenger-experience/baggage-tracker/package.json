@@ -1,0 +1,215 @@
+{
+  "name": "@aerofusionxr/baggage-tracker",
+  "version": "1.0.0",
+  "description": "Enterprise-grade baggage tracking service with RFID integration, real-time monitoring, and predictive analytics",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "start": "node dist/index.js",
+    "dev": "concurrently \"npm run build:watch\" \"nodemon dist/index.js\"",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "format": "prettier --write src/**/*.ts",
+    "clean": "rimraf dist",
+    "prebuild": "npm run clean",
+    "postbuild": "cp package.json dist/",
+    "docker:build": "docker build -t aerofusionxr/baggage-tracker .",
+    "docker:run": "docker run -p 8002:8002 aerofusionxr/baggage-tracker",
+    "health-check": "curl -f http://localhost:8002/health || exit 1"
+  },
+  "dependencies": {
+    "@aerofusionxr/shared": "file:../../packages/shared",
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.2",
+    "express": "^4.18.2",
+    "fastify": "^4.24.3",
+    "fastify-plugin": "^4.5.1",
+    "ioredis": "^5.3.2",
+    "mqtt": "^5.3.4",
+    "mongodb": "^6.3.0",
+    "mongoose": "^8.0.3",
+    "socket.io": "^4.7.4",
+    "ws": "^8.14.2",
+    "uuid": "^9.0.1",
+    "joi": "^17.11.0",
+    "ajv": "^8.12.0",
+    "date-fns": "^2.30.0",
+    "lodash": "^4.17.21",
+    "rxjs": "^7.8.1",
+    "node-cron": "^3.0.3",
+    "bull": "^4.12.0",
+    "agenda": "^5.0.0",
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "helmet": "^7.1.0",
+    "cors": "^2.8.5",
+    "compression": "^1.7.4",
+    "dotenv": "^16.3.1",
+    "config": "^3.3.9",
+    "winston": "^3.11.0",
+    "morgan": "^1.10.0",
+    "http-status-codes": "^2.3.0",
+    "axios": "^1.6.2",
+    "node-fetch": "^3.3.2",
+    "multer": "^1.4.5-lts.1",
+    "sharp": "^0.33.1",
+    "qrcode": "^1.5.3",
+    "jsbarcode": "^3.11.5",
+    "nodemailer": "^6.9.7",
+    "twilio": "^4.19.3",
+    "firebase-admin": "^11.11.1",
+    "node-schedule": "^2.1.1",
+    "moment": "^2.29.4",
+    "moment-timezone": "^0.5.43",
+    "validator": "^13.11.0",
+    "crypto-js": "^4.2.0",
+    "express-rate-limit": "^7.1.5",
+    "express-validator": "^7.0.1",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "passport-local": "^1.0.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0",
+    "yamljs": "^0.3.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/cors": "^2.8.17",
+    "@types/compression": "^1.7.5",
+    "@types/morgan": "^1.9.9",
+    "@types/bcrypt": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/uuid": "^9.0.7",
+    "@types/lodash": "^4.14.202",
+    "@types/multer": "^1.4.11",
+    "@types/nodemailer": "^6.4.14",
+    "@types/node-cron": "^3.0.11",
+    "@types/validator": "^13.11.7",
+    "@types/crypto-js": "^4.2.1",
+    "@types/passport": "^1.0.16",
+    "@types/passport-jwt": "^3.0.13",
+    "@types/passport-local": "^1.0.38",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.6",
+    "@types/yamljs": "^0.2.34",
+    "@types/ws": "^8.5.10",
+    "@types/jest": "^29.5.8",
+    "@types/supertest": "^2.0.16",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.1",
+    "supertest": "^6.3.3",
+    "nodemon": "^3.0.2",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.54.0",
+    "@typescript-eslint/eslint-plugin": "^6.12.0",
+    "@typescript-eslint/parser": "^6.12.0",
+    "prettier": "^3.1.0",
+    "rimraf": "^5.0.5",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
+    "source-map-support": "^0.5.21"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "keywords": [
+    "baggage-tracking",
+    "rfid",
+    "airport",
+    "aviation",
+    "real-time",
+    "iot",
+    "enterprise",
+    "typescript",
+    "mongodb",
+    "redis",
+    "mqtt"
+  ],
+  "author": {
+    "name": "AeroFusionXR Team",
+    "email": "baggage@aerofusionxr.com",
+    "url": "https://aerofusionxr.com"
+  },
+  "license": "PROPRIETARY",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aerofusionxr/baggage-tracker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aerofusionxr/baggage-tracker/issues"
+  },
+  "homepage": "https://github.com/aerofusionxr/baggage-tracker#readme",
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "roots": [
+      "<rootDir>/src",
+      "<rootDir>/tests"
+    ],
+    "testMatch": [
+      "**/__tests__/**/*.ts",
+      "**/?(*.)+(spec|test).ts"
+    ],
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    },
+    "collectCoverageFrom": [
+      "src/**/*.ts",
+      "!src/**/*.d.ts",
+      "!src/tests/**",
+      "!src/index.ts"
+    ],
+    "coverageDirectory": "coverage",
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html"
+    ],
+    "moduleNameMapping": {
+      "^@/(.*)$": "<rootDir>/src/$1"
+    }
+  },
+  "eslintConfig": {
+    "parser": "@typescript-eslint/parser",
+    "extends": [
+      "eslint:recommended",
+      "@typescript-eslint/recommended"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 2022,
+      "sourceType": "module"
+    },
+    "rules": {
+      "@typescript-eslint/no-unused-vars": "error",
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/explicit-function-return-type": "warn"
+    }
+  },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "es5",
+    "printWidth": 120,
+    "arrowParens": "avoid"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "dist"
+    ],
+    "ext": "js",
+    "ignore": [
+      "dist/**/*.test.js"
+    ],
+    "env": {
+      "NODE_ENV": "development"
+    }
+  }
+} 

@@ -1,0 +1,86 @@
+{
+  "compilerOptions": {
+    // Language and Environment
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    
+    // Emit
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    
+    // Type Checking
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": false,
+    "exactOptionalPropertyTypes": false,
+    
+    // Modules
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    
+    // Advanced
+    "skipLibCheck": true,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": false,
+    
+    // Interop Constraints
+    "isolatedModules": true,
+    
+    // Backwards Compatibility
+    "suppressExcessPropertyErrors": false,
+    "suppressImplicitAnyIndexErrors": false,
+    
+    // Path Mapping
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["*"],
+      "@/types": ["types"],
+      "@/core/*": ["core/*"],
+      "@/services/*": ["services/*"],
+      "@/routes/*": ["routes/*"],
+      "@/middleware/*": ["middleware/*"],
+      "@/utils/*": ["utils/*"],
+      "@/websockets/*": ["websockets/*"],
+      "@/sdk": ["sdk"]
+    }
+  },
+  
+  "include": [
+    "src/**/*",
+    "tests/**/*"
+  ],
+  
+  "exclude": [
+    "node_modules",
+    "dist",
+    "coverage",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "jest.config.js"
+  ],
+  
+  "ts-node": {
+    "files": true,
+    "transpileOnly": false,
+    "require": ["tsconfig-paths/register"]
+  }
+} 
