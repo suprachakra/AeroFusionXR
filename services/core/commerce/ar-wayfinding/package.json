@@ -1,0 +1,71 @@
+{
+  "name": "@aerofusionxr/ar-wayfinding",
+  "version": "1.0.0",
+  "description": "AR Wayfinding & Navigation service for AeroFusionXR platform",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "dev": "ts-node src/index.ts",
+    "start": "node dist/index.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "clean": "rimraf dist",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0",
+    "tslib": "^2.6.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.50.0",
+    "jest": "^29.5.0",
+    "rimraf": "^5.0.0",
+    "ts-jest": "^29.1.0",
+    "ts-node": "^10.9.0"
+  },
+  "peerDependencies": {
+    "@aerofusionxr/notifications": "^1.0.0",
+    "@aerofusionxr/localization": "^1.0.0",
+    "@aerofusionxr/user-profiles": "^1.0.0"
+  },
+  "keywords": [
+    "ar",
+    "wayfinding",
+    "navigation",
+    "indoor-positioning",
+    "airport",
+    "terminal",
+    "accessibility",
+    "pathfinding",
+    "beacons",
+    "wifi-fingerprinting"
+  ],
+  "author": "AeroFusionXR Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/company/aerofusionxr.git",
+    "directory": "services/ar-wayfinding"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "restricted"
+  }
+} 
