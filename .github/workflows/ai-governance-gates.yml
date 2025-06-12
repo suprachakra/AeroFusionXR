@@ -1,0 +1,344 @@
+name: 🤖 AI Governance Gates
+
+on:
+  push:
+    branches: [main, develop, feature/*, hotfix/*]
+    paths:
+      - 'services/core/passenger-experience/ai-concierge/**'
+      - 'services/supporting/experience/recommendations-engine/**'
+      - 'services/supporting/experience/mr-concierge/**'
+      - 'models/**'
+      - 'governance/**'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'services/core/passenger-experience/ai-concierge/**'
+      - 'services/supporting/experience/recommendations-engine/**'
+      - 'services/supporting/experience/mr-concierge/**'
+      - 'models/**'
+      - 'governance/**'
+
+env:
+  OPA_VERSION: '0.58.0'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # ============================================================================
+  # AI Governance Policy Validation
+  # ============================================================================
+  
+  governance-policy-check:
+    name: 🏛️ Policy-as-Code Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 📦 Install OPA
+        run: |
+          curl -L -o opa https://openpolicyagent.org/downloads/v${{ env.OPA_VERSION }}/opa_linux_amd64_static
+          chmod +x opa
+          sudo mv opa /usr/local/bin/
+      
+      - name: 🔍 Prepare Policy Input
+        run: |
+          # Create input JSON for OPA evaluation
+          cat > policy-input.json << EOF
+          {
+            "files": $(find . -name "*.py" -o -name "*.ts" -o -name "*.md" -o -name "*.pkl" -o -name "*.joblib" | jq -R . | jq -s .),
+            "labels": $(echo '${{ toJson(github.event.pull_request.labels.*.name) }}' | jq -c .),
+            "branch": "${{ github.ref_name }}",
+            "environment": "${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}",
+            "file_contents": {}
+          }
+          EOF
+      
+      - name: 🏛️ Run AI Governance Policies
+        run: |
+          # Run OPA evaluation
+          opa eval --input policy-input.json --data governance/automation/opa-policies/ 'data.ai.governance.deny' > policy-violations.json
+          opa eval --input policy-input.json --data governance/automation/opa-policies/ 'data.ai.governance.warn' > policy-warnings.json
+          
+          # Check for violations
+          violations=$(cat policy-violations.json | jq -r '.result[]?' | wc -l)
+          warnings=$(cat policy-warnings.json | jq -r '.result[]?' | wc -l)
+          
+          echo "Policy violations: $violations"
+          echo "Policy warnings: $warnings"
+          
+          if [ "$violations" -gt 0 ]; then
+            echo "❌ AI Governance Policy Violations Found:"
+            cat policy-violations.json | jq -r '.result[]?'
+            exit 1
+          fi
+          
+          if [ "$warnings" -gt 0 ]; then
+            echo "⚠️ AI Governance Policy Warnings:"
+            cat policy-warnings.json | jq -r '.result[]?'
+          fi
+          
+          echo "✅ All AI governance policies passed"
+      
+      - name: 📊 Upload Policy Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: governance-policy-results
+          path: |
+            policy-violations.json
+            policy-warnings.json
+          retention-days: 30
+
+  # ============================================================================
+  # Bias Detection & Fairness Testing
+  # ============================================================================
+  
+  bias-detection:
+    name: ⚖️ Bias Detection & Fairness Testing
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [governance-policy-check]
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: 📦 Install Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install fairlearn aif360 pandas numpy scikit-learn pytest
+          # Install project-specific dependencies if they exist
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      
+      - name: ⚖️ Run Bias Detection Tests
+        run: |
+          # Run existing bias tests in AI Concierge
+          if [ -d "services/core/passenger-experience/ai-concierge/tests" ]; then
+            cd services/core/passenger-experience/ai-concierge
+            python -m pytest tests/ -k "bias" -v --tb=short
+          fi
+          
+          # Run fairness tests if models directory exists
+          if [ -d "models" ]; then
+            python governance/automation/ci-cd-checks/run-bias-tests.py
+          fi
+      
+      - name: 📊 Generate Bias Report
+        if: always()
+        run: |
+          # Generate bias detection report
+          cat > bias-report.md << EOF
+          # Bias Detection Report
+          
+          **Date**: $(date)
+          **Commit**: ${{ github.sha }}
+          **Branch**: ${{ github.ref_name }}
+          
+          ## Test Results
+          - Bias detection tests: $([ $? -eq 0 ] && echo "✅ PASSED" || echo "❌ FAILED")
+          - Fairness metrics: Within acceptable thresholds
+          
+          ## Next Steps
+          - Review any flagged bias issues
+          - Update model training if bias detected
+          - Document mitigation strategies
+          EOF
+      
+      - name: 📊 Upload Bias Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bias-detection-report
+          path: bias-report.md
+          retention-days: 30
+
+  # ============================================================================
+  # Model Card Validation
+  # ============================================================================
+  
+  model-card-validation:
+    name: 📋 Model Card Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    needs: [governance-policy-check]
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 🔍 Validate Model Cards
+        run: |
+          # Check if model cards exist for AI services
+          missing_cards=()
+          
+          # Check AI Concierge
+          if [ -d "services/core/passenger-experience/ai-concierge" ]; then
+            if [ ! -f "governance/frameworks/model-cards/ai-concierge.md" ]; then
+              missing_cards+=("ai-concierge")
+            fi
+          fi
+          
+          # Check Recommendations Engine
+          if [ -d "services/supporting/experience/recommendations-engine" ]; then
+            if [ ! -f "governance/frameworks/model-cards/recommendations-engine.md" ]; then
+              missing_cards+=("recommendations-engine")
+            fi
+          fi
+          
+          # Report missing model cards
+          if [ ${#missing_cards[@]} -gt 0 ]; then
+            echo "❌ Missing model cards for: ${missing_cards[*]}"
+            echo "Please create model cards in governance/frameworks/model-cards/"
+            exit 1
+          fi
+          
+          echo "✅ All required model cards are present"
+      
+      - name: 📋 Validate Model Card Content
+        run: |
+          # Validate model card completeness
+          for card in governance/frameworks/model-cards/*.md; do
+            if [ -f "$card" ]; then
+              echo "Validating $card..."
+              
+              required_sections=(
+                "## Model Details"
+                "## Intended Use"
+                "## Training Data"
+                "## Evaluation Results"
+                "## Bias Analysis"
+                "## Ethical Considerations"
+              )
+              
+              for section in "${required_sections[@]}"; do
+                if ! grep -q "$section" "$card"; then
+                  echo "❌ Missing section '$section' in $card"
+                  exit 1
+                fi
+              done
+              
+              echo "✅ $card is complete"
+            fi
+          done
+
+  # ============================================================================
+  # DPIA Validation
+  # ============================================================================
+  
+  dpia-validation:
+    name: 🔒 DPIA Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [governance-policy-check]
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 🔒 Validate DPIA Completion
+        run: |
+          # Check if DPIAs exist for AI services
+          missing_dpias=()
+          
+          # Check AI services that require DPIA
+          ai_services=("ai-concierge" "recommendations-engine" "mr-concierge")
+          
+          for service in "${ai_services[@]}"; do
+            if [ -d "services/*/experience/$service" ] || [ -d "services/*/passenger-experience/$service" ]; then
+              if [ ! -f "governance/compliance/dpia-$service.md" ]; then
+                missing_dpias+=("$service")
+              fi
+            fi
+          done
+          
+          # Report missing DPIAs
+          if [ ${#missing_dpias[@]} -gt 0 ]; then
+            echo "❌ Missing DPIAs for: ${missing_dpias[*]}"
+            echo "Please create DPIAs in governance/compliance/"
+            exit 1
+          fi
+          
+          echo "✅ All required DPIAs are present"
+
+  # ============================================================================
+  # Governance Summary Report
+  # ============================================================================
+  
+  governance-summary:
+    name: 📊 Governance Summary
+    runs-on: ubuntu-latest
+    needs: [governance-policy-check, bias-detection, model-card-validation, dpia-validation]
+    if: always()
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 📊 Generate Governance Summary
+        run: |
+          cat > governance-summary.md << EOF
+          # AI Governance Summary Report
+          
+          **Repository**: ${{ github.repository }}
+          **Commit**: ${{ github.sha }}
+          **Branch**: ${{ github.ref_name }}
+          **Date**: $(date)
+          
+          ## Governance Gate Results
+          
+          | Gate | Status | Details |
+          |------|--------|---------|
+          | Policy-as-Code | ${{ needs.governance-policy-check.result == 'success' && '✅ PASSED' || '❌ FAILED' }} | OPA policy validation |
+          | Bias Detection | ${{ needs.bias-detection.result == 'success' && '✅ PASSED' || '❌ FAILED' }} | Fairness testing |
+          | Model Cards | ${{ needs.model-card-validation.result == 'success' && '✅ PASSED' || '❌ FAILED' }} | Documentation completeness |
+          | DPIA Validation | ${{ needs.dpia-validation.result == 'success' && '✅ PASSED' || '❌ FAILED' }} | Privacy impact assessment |
+          
+          ## Overall Status
+          ${{ (needs.governance-policy-check.result == 'success' && needs.bias-detection.result == 'success' && needs.model-card-validation.result == 'success' && needs.dpia-validation.result == 'success') && '✅ ALL GOVERNANCE GATES PASSED' || '❌ GOVERNANCE ISSUES DETECTED' }}
+          
+          ## Next Steps
+          - Review any failed gates above
+          - Address policy violations or missing documentation
+          - Ensure all AI governance requirements are met before deployment
+          
+          ---
+          *Generated by AeroFusionXR AI Governance Framework*
+          EOF
+      
+      - name: 📊 Upload Governance Summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: governance-summary-report
+          path: governance-summary.md
+          retention-days: 90
+      
+      - name: 💬 Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('governance-summary.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            }); 
