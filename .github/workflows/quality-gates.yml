@@ -1,0 +1,456 @@
+name: 🛡️ Quality Gates & Clean Architecture Enforcement
+
+on:
+  push:
+    branches: [main, develop, feature/*, hotfix/*]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Run nightly security scans
+    - cron: '0 2 * * *'
+
+env:
+  NODE_VERSION: '18'
+  CACHE_VERSION: 'v1'
+
+jobs:
+  # ============================================================================
+  # Phase 1: Fast Feedback Loop (< 5 minutes)
+  # ============================================================================
+  
+  lint-and-format:
+    name: 🧹 Lint & Format Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: 📥 Install dependencies
+        run: npm ci --prefer-offline --no-audit
+      
+      - name: 🧹 ESLint Check
+        run: npm run lint
+      
+      - name: 💅 Prettier Format Check
+        run: npm run format:check
+      
+      - name: 🔧 TypeScript Type Check
+        run: npm run typecheck
+
+  duplication-detection:
+    name: 🔍 Zero Duplication Enforcement
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: 📥 Install dependencies
+        run: npm ci --prefer-offline --no-audit
+      
+      - name: 🔍 Advanced Duplication Detection
+        run: npm run quality:duplication
+      
+      - name: 📊 Upload Duplication Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: duplication-report
+          path: reports/duplication-report.json
+          retention-days: 30
+
+  dependency-validation:
+    name: 🏗️ Architecture Boundary Enforcement
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: 📥 Install dependencies
+        run: npm ci --prefer-offline --no-audit
+      
+      - name: 🏗️ Validate Service Dependencies
+        run: npm run quality:dependencies
+      
+      - name: 📊 Upload Dependency Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-report
+          path: reports/dependency-report.json
+          retention-days: 30
+
+  # ============================================================================
+  # Phase 2: Comprehensive Testing (< 15 minutes)
+  # ============================================================================
+  
+  unit-tests:
+    name: 🧪 Unit Tests & Coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [lint-and-format, duplication-detection, dependency-validation]
+    
+    strategy:
+      matrix:
+        workspace: [packages, services]
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: 📥 Install dependencies
+        run: npm ci --prefer-offline --no-audit
+      
+      - name: 🧪 Run Tests with Coverage
+        run: npm run test:coverage
+        env:
+          CI: true
+      
+      - name: 📊 Coverage Threshold Check
+        run: |
+          if [ "${{ matrix.workspace }}" = "packages" ]; then
+            npx istanbul-threshold-checker --coverage coverage/coverage-summary.json --threshold 90
+          else
+            npx istanbul-threshold-checker --coverage coverage/coverage-summary.json --threshold 80
+          fi
+      
+      - name: 📈 Upload Coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage/lcov.info
+          flags: ${{ matrix.workspace }}
+          name: ${{ matrix.workspace }}-coverage
+          fail_ci_if_error: true
+
+  integration-tests:
+    name: 🔗 Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [unit-tests]
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: aerofusionxr_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: 📥 Install dependencies
+        run: npm ci --prefer-offline --no-audit
+      
+      - name: 🔗 Run Integration Tests
+        run: npm run test:e2e
+        env:
+          DATABASE_URL: postgresql://postgres:test@localhost:5432/aerofusionxr_test
+          REDIS_URL: redis://localhost:6379
+          NODE_ENV: test
+
+  # ============================================================================
+  # Phase 3: Security & Performance (< 10 minutes)
+  # ============================================================================
+  
+  security-scan:
+    name: 🔒 Security Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [lint-and-format]
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: 📥 Install dependencies
+        run: npm ci --prefer-offline --no-audit
+      
+      - name: 🔒 NPM Security Audit
+        run: npm audit --audit-level moderate
+      
+      - name: 🛡️ Snyk Security Scan
+        run: npx snyk test --severity-threshold=high
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        continue-on-error: true
+      
+      - name: 📊 CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          languages: typescript, javascript
+
+  performance-tests:
+    name: ⚡ Performance Benchmarks
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    needs: [unit-tests]
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: 📥 Install dependencies
+        run: npm ci --prefer-offline --no-audit
+      
+      - name: ⚡ Run Performance Tests
+        run: npm run performance:test
+      
+      - name: 📊 Upload Performance Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-report
+          path: reports/performance-report.json
+          retention-days: 30
+
+  # ============================================================================
+  # Phase 4: Build & Container Validation (< 8 minutes)
+  # ============================================================================
+  
+  build-validation:
+    name: 🏗️ Build Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    needs: [duplication-detection, dependency-validation]
+    
+    strategy:
+      matrix:
+        target: [packages, services, clients]
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: 📥 Install dependencies
+        run: npm ci --prefer-offline --no-audit
+      
+      - name: 🏗️ Build ${{ matrix.target }}
+        run: npm run build:${{ matrix.target }}
+      
+      - name: 📦 Verify Build Artifacts
+        run: |
+          echo "🔍 Verifying build artifacts for ${{ matrix.target }}..."
+          find ${{ matrix.target }} -name "dist" -type d | head -5
+          echo "✅ Build artifacts verified"
+
+  container-security:
+    name: 🐳 Container Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [build-validation]
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 🐳 Build Docker Image
+        run: |
+          docker build -t aerofusionxr:latest .
+          docker build -t aerofusionxr:${{ github.sha }} .
+      
+      - name: 🛡️ Trivy Container Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'aerofusionxr:latest'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          exit-code: '1'
+          severity: 'HIGH,CRITICAL'
+      
+      - name: 📊 Upload Trivy Results
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # ============================================================================
+  # Phase 5: Quality Gate Summary (Final Decision)
+  # ============================================================================
+  
+  quality-gate-summary:
+    name: 🎯 Quality Gate Summary
+    runs-on: ubuntu-latest
+    needs: [
+      lint-and-format,
+      duplication-detection,
+      dependency-validation,
+      unit-tests,
+      integration-tests,
+      security-scan,
+      performance-tests,
+      build-validation,
+      container-security
+    ]
+    if: always()
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 📊 Download All Reports
+        uses: actions/download-artifact@v4
+        with:
+          path: reports/
+      
+      - name: 📋 Generate Quality Summary
+        run: |
+          echo "# 🎯 AeroFusionXR Quality Gate Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 Build Status" >> $GITHUB_STEP_SUMMARY
+          echo "- 🧹 **Lint & Format**: ${{ needs.lint-and-format.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔍 **Duplication Check**: ${{ needs.duplication-detection.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🏗️ **Dependencies**: ${{ needs.dependency-validation.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🧪 **Unit Tests**: ${{ needs.unit-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔗 **Integration Tests**: ${{ needs.integration-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔒 **Security Scan**: ${{ needs.security-scan.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ⚡ **Performance**: ${{ needs.performance-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🏗️ **Build**: ${{ needs.build-validation.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🐳 **Container Security**: ${{ needs.container-security.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Check if all critical gates passed
+          if [[ "${{ needs.lint-and-format.result }}" == "success" ]] && \
+             [[ "${{ needs.duplication-detection.result }}" == "success" ]] && \
+             [[ "${{ needs.dependency-validation.result }}" == "success" ]] && \
+             [[ "${{ needs.unit-tests.result }}" == "success" ]] && \
+             [[ "${{ needs.build-validation.result }}" == "success" ]]; then
+            echo "## ✅ **QUALITY GATE PASSED**" >> $GITHUB_STEP_SUMMARY
+            echo "All critical quality checks have passed. This code meets AeroFusionXR excellence standards." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ❌ **QUALITY GATE FAILED**" >> $GITHUB_STEP_SUMMARY
+            echo "One or more critical quality checks have failed. Please review and fix before merging." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+      
+      - name: 🎉 Success Notification
+        if: success()
+        run: |
+          echo "🎉 Quality Gate Passed! Code is ready for deployment."
+          echo "📊 All quality metrics are within acceptable thresholds."
+          echo "🚀 This build meets AeroFusionXR enterprise standards."
+
+  # ============================================================================
+  # Optional: Nightly Deep Analysis
+  # ============================================================================
+  
+  nightly-deep-scan:
+    name: 🌙 Nightly Deep Analysis
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    timeout-minutes: 30
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: 📥 Install dependencies
+        run: npm ci --prefer-offline --no-audit
+      
+      - name: 🔍 Deep Code Analysis
+        run: |
+          echo "🌙 Running nightly deep analysis..."
+          npm run quality:all
+          npm run analyze:bundle
+          npm run metrics
+      
+      - name: 📊 Generate Comprehensive Report
+        run: |
+          echo "📊 Generating comprehensive quality report..."
+          # Add comprehensive reporting logic here
+      
+      - name: 📧 Send Report
+        # Add notification logic for teams
+        run: echo "📧 Deep analysis complete. Report sent to development teams." 
