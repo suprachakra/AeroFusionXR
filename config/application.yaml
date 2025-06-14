@@ -157,6 +157,65 @@ ai_services:
     temperature: ${OPENAI_TEMPERATURE:0.7}
 
 # ==========================================
+# ⚖️ AI GOVERNANCE SERVICES
+# ==========================================
+governance:
+  enabled: ${GOVERNANCE_ENABLED:true}
+  maturity_level: 5  # Level 5: Optimizing
+  services:
+    governance_architecture:
+      url: ${GOVERNANCE_ARCHITECTURE_URL:http://localhost:3001}
+      timeout: 30000
+    audit_orchestrator:
+      url: ${AUDIT_ORCHESTRATOR_URL:http://localhost:3002}
+      timeout: 30000
+    safety_circuit_breaker:
+      url: ${SAFETY_CIRCUIT_BREAKER_URL:http://localhost:3003}
+      timeout: 5000
+    data_lineage:
+      url: ${DATA_LINEAGE_URL:http://localhost:3004}
+      timeout: 30000
+    training_governance:
+      url: ${TRAINING_GOVERNANCE_URL:http://localhost:3005}
+      timeout: 30000
+  quality_gates:
+    code_quality:
+      eslint_violations_critical: 0
+      eslint_violations_high: 0
+      documentation_coverage: 0.90
+    test_coverage:
+      unit_tests: 0.90
+      integration_tests: 0.85
+      e2e_tests: 0.80
+      governance_tests: 0.95
+    security:
+      critical_vulnerabilities: 0
+      high_vulnerabilities: 0
+      secrets_detected: 0
+    performance:
+      api_response_time_p95: 500
+      lighthouse_score: 90
+    compliance:
+      gdpr_compliance: 0.95
+      sox_compliance: 0.95
+      iso27001_compliance: 0.90
+      nist_csf_compliance: 0.90
+  monitoring:
+    metrics_collection_interval: 60
+    alert_thresholds:
+      availability: 0.9997
+      error_rate: 0.0003
+      response_time: 500
+    notification_channels:
+      slack:
+        webhook_url: ${GOVERNANCE_SLACK_WEBHOOK:}
+        channel: "#governance-alerts"
+      email:
+        recipients: ["governance-team@aerofusionxr.com"]
+      pagerduty:
+        service_key: ${GOVERNANCE_PAGERDUTY_KEY:}
+
+# ==========================================
 # 📊 MONITORING & OBSERVABILITY
 # ==========================================
 monitoring:

@@ -1,0 +1,360 @@
+version: '3.8'
+
+services:
+  # Governance Orchestrator - Central Command
+  governance-orchestrator:
+    build:
+      context: ./core/governance-orchestrator
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - POSTGRES_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - REDIS_URL=${REDIS_URL}
+      - KAFKA_BROKERS=${KAFKA_BROKERS:-kafka:9092}
+      - GOVERNANCE_SECRET_KEY=${GOVERNANCE_SECRET_KEY}
+    ports:
+      - "9000:8000"
+    volumes:
+      - ./core/governance-orchestrator:/app
+      - /app/node_modules
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+    networks:
+      - governance
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Unified Dashboard - Role-based Governance Portal
+  unified-dashboard:
+    build:
+      context: ./core/unified-dashboard
+      dockerfile: Dockerfile
+    environment:
+      - REACT_APP_API_URL=http://governance-orchestrator:8000
+      - REACT_APP_ENVIRONMENT=${NODE_ENV:-development}
+    ports:
+      - "9001:3000"
+    volumes:
+      - ./core/unified-dashboard:/app
+      - /app/node_modules
+    depends_on:
+      - governance-orchestrator
+    networks:
+      - governance
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Evidence Collector - Automated Evidence Aggregation
+  evidence-collector:
+    build:
+      context: ./core/evidence-collector
+      dockerfile: Dockerfile
+    environment:
+      - PYTHON_ENV=${PYTHON_ENV:-development}
+      - POSTGRES_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - REDIS_URL=${REDIS_URL}
+      - KAFKA_BROKERS=${KAFKA_BROKERS:-kafka:9092}
+    ports:
+      - "9002:8000"
+    volumes:
+      - ./core/evidence-collector:/app
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+    networks:
+      - governance
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Notification Engine - Multi-channel Alerts
+  notification-engine:
+    build:
+      context: ./shared/notification-engine
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - REDIS_URL=${REDIS_URL}
+      - KAFKA_BROKERS=${KAFKA_BROKERS:-kafka:9092}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
+      - TEAMS_WEBHOOK_URL=${TEAMS_WEBHOOK_URL}
+    ports:
+      - "9003:8000"
+    volumes:
+      - ./shared/notification-engine:/app
+      - /app/node_modules
+    depends_on:
+      - redis
+      - kafka
+    networks:
+      - governance
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Workflow Engine - Process Automation
+  workflow-engine:
+    build:
+      context: ./shared/workflow-engine
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - POSTGRES_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - REDIS_URL=${REDIS_URL}
+      - KAFKA_BROKERS=${KAFKA_BROKERS:-kafka:9092}
+    ports:
+      - "9004:8000"
+    volumes:
+      - ./shared/workflow-engine:/app
+      - /app/node_modules
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+    networks:
+      - governance
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Analytics Engine - Cross-pillar Analytics
+  analytics-engine:
+    build:
+      context: ./shared/analytics-engine
+      dockerfile: Dockerfile
+    environment:
+      - PYTHON_ENV=${PYTHON_ENV:-development}
+      - POSTGRES_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - REDIS_URL=${REDIS_URL}
+      - KAFKA_BROKERS=${KAFKA_BROKERS:-kafka:9092}
+      - CLICKHOUSE_URL=${CLICKHOUSE_URL}
+    ports:
+      - "9005:8000"
+    volumes:
+      - ./shared/analytics-engine:/app
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+      - clickhouse
+    networks:
+      - governance
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Pillar 2: Audit Engine
+  audit-engine:
+    build:
+      context: ../pillars/02-independent-assurance/audit-engine
+      dockerfile: Dockerfile
+    environment:
+      - PYTHON_ENV=${PYTHON_ENV:-development}
+      - POSTGRES_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - REDIS_URL=${REDIS_URL}
+      - KAFKA_BROKERS=${KAFKA_BROKERS:-kafka:9092}
+    ports:
+      - "9010:8000"
+    volumes:
+      - ../pillars/02-independent-assurance/audit-engine:/app
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+    networks:
+      - governance
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Pillar 3: Anomaly Detection
+  anomaly-detection:
+    build:
+      context: ../pillars/03-runtime-safety/anomaly-detection
+      dockerfile: Dockerfile
+    environment:
+      - PYTHON_ENV=${PYTHON_ENV:-development}
+      - POSTGRES_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - REDIS_URL=${REDIS_URL}
+      - KAFKA_BROKERS=${KAFKA_BROKERS:-kafka:9092}
+      - MODEL_REGISTRY_URL=http://model-registry:8000
+    ports:
+      - "9020:8000"
+    volumes:
+      - ../pillars/03-runtime-safety/anomaly-detection:/app
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+    networks:
+      - governance
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Pillar 4: Lineage Engine
+  lineage-engine:
+    build:
+      context: ../pillars/04-data-model-lineage/lineage-engine
+      dockerfile: Dockerfile
+    environment:
+      - PYTHON_ENV=${PYTHON_ENV:-development}
+      - POSTGRES_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - NEO4J_URI=${NEO4J_URI:-bolt://neo4j:7687}
+      - NEO4J_USER=${NEO4J_USER:-neo4j}
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+      - KAFKA_BROKERS=${KAFKA_BROKERS:-kafka:9092}
+    ports:
+      - "9030:8000"
+    volumes:
+      - ../pillars/04-data-model-lineage/lineage-engine:/app
+    depends_on:
+      - postgres
+      - neo4j
+      - kafka
+    networks:
+      - governance
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Supporting Infrastructure
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    networks:
+      - governance
+      - backend
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - governance
+      - backend
+
+  neo4j:
+    image: neo4j:5.11
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:-governance123}
+      NEO4J_PLUGINS: '["apoc", "graph-data-science"]'
+      NEO4J_dbms_security_procedures_unrestricted: apoc.*,gds.*
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - neo4j-data:/data
+    networks:
+      - governance
+      - backend
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:23.8
+    environment:
+      CLICKHOUSE_DB: governance
+      CLICKHOUSE_USER: governance
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-governance123}
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+    networks:
+      - governance
+      - backend
+
+  # Governance-specific Prometheus
+  prometheus-governance:
+    image: prom/prometheus:v2.47.0
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infrastructure/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-governance-data:/prometheus
+    networks:
+      - governance
+      - backend
+
+  # Governance-specific Grafana
+  grafana-governance:
+    image: grafana/grafana:10.1.0
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-governance123}
+      GF_USERS_ALLOW_SIGN_UP: false
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./infrastructure/monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./infrastructure/monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+      - grafana-governance-data:/var/lib/grafana
+    depends_on:
+      - prometheus-governance
+    networks:
+      - governance
+
+volumes:
+  neo4j-data:
+  clickhouse-data:
+  prometheus-governance-data:
+  grafana-governance-data:
+
+networks:
+  governance:
+    driver: bridge
+  backend:
+    external: true 

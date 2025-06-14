@@ -44,6 +44,57 @@ scrape_configs:
     static_configs:
       - targets: ['cadvisor:8080']
 
+  # ==========================================
+  # ⚖️ AI GOVERNANCE SERVICES MONITORING
+  # ==========================================
+  - job_name: 'governance-architecture'
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['governance-architecture:3001']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: pillar
+        replacement: '01-governance-architecture'
+
+  - job_name: 'audit-orchestrator'
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['audit-orchestrator:3002']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: pillar
+        replacement: '02-audit-orchestrator'
+
+  - job_name: 'safety-circuit-breaker'
+    metrics_path: '/metrics'
+    scrape_interval: 15s  # More frequent for safety-critical component
+    static_configs:
+      - targets: ['safety-circuit-breaker:3003']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: pillar
+        replacement: '03-safety-circuit-breaker'
+
+  - job_name: 'governance-pillars'
+    metrics_path: '/governance/metrics'
+    scrape_interval: 60s
+    static_configs:
+      - targets: 
+        - 'data-lineage:3004'
+        - 'training-governance:3005'
+        - 'feedback-optimization:3006'
+        - 'regulatory-intelligence:3007'
+        - 'privacy-technologies:3008'
+        - 'sustainability-tracking:3009'
+        - 'supply-chain-governance:3010'
+        - 'recourse-remediation:3011'
+        - 'ethics-fairness:3012'
+        - 'continuous-learning:3013'
+        - 'impact-accountability:3014'
+        - 'emerging-tech-governance:3015'
+
 # Alert rules
 groups:
   - name: availability
@@ -122,4 +173,63 @@ groups:
           severity: warning
         annotations:
           summary: "Model drift detected on {{ $labels.instance }}"
-          description: "Model drift score is above threshold" 
+          description: "Model drift score is above threshold"
+
+  # ==========================================
+  # ⚖️ AI GOVERNANCE ALERTS
+  # ==========================================
+  - name: governance_pillars
+    rules:
+      - alert: GovernancePillarDown
+        expr: governance_pillar_status == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Governance pillar {{ $labels.pillar }} is down"
+          description: "Critical governance pillar has been down for more than 5 minutes"
+
+      - alert: QualityGateFailure
+        expr: quality_gate_score < 90
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Quality gate score below threshold: {{ $value }}%"
+          description: "Quality gate score has fallen below 90% threshold"
+
+      - alert: ComplianceViolation
+        expr: governance_compliance_score < 95
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Compliance score critical: {{ $value }}%"
+          description: "Governance compliance score has fallen below 95% threshold"
+
+      - alert: SafetyCircuitBreakerTriggered
+        expr: safety_circuit_breaker_triggered == 1
+        for: 0s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Safety circuit breaker triggered on {{ $labels.instance }}"
+          description: "Safety circuit breaker has been triggered - immediate attention required"
+
+      - alert: BiasDetectionAlert
+        expr: bias_detection_score < 0.97
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Bias detection score below threshold: {{ $value }}"
+          description: "AI bias detection score has fallen below 97% threshold"
+
+      - alert: GovernanceHighLatency
+        expr: histogram_quantile(0.95, rate(governance_operation_duration_seconds_bucket[5m])) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High governance operation latency on {{ $labels.instance }}"
+          description: "95th percentile governance operation latency is above 500ms" 

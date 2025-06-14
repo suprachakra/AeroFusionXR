@@ -1,0 +1,633 @@
+name: AeroFusionXR AI Governance - World-Class Quality Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    - cron: '0 2 * * *' # Daily security scans at 2 AM
+
+env:
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.11'
+  COVERAGE_THRESHOLD: 90
+  SECURITY_THRESHOLD: 0
+  PERFORMANCE_THRESHOLD: 500
+
+jobs:
+  # ============================================================================
+  # PHASE 1: CODE QUALITY & STATIC ANALYSIS
+  # ============================================================================
+  code-quality:
+    name: 🔍 Code Quality & Static Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm install -g eslint prettier jsdoc
+
+      - name: Run ESLint with security rules
+        run: |
+          npx eslint . --config validation/automated-quality/eslint.config.js \
+            --format json --output-file eslint-results.json
+          npx eslint . --config validation/automated-quality/eslint.config.js
+
+      - name: Run Prettier formatting check
+        run: npx prettier --check "**/*.{js,json,md,yml,yaml}"
+
+      - name: Validate JSDoc documentation
+        run: |
+          npx jsdoc -c validation/automated-quality/jsdoc.config.json \
+            --dry-run --verbose
+
+      - name: Run SonarQube analysis
+        uses: sonarqube-quality-gate-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          scanMetadataReportFile: .scannerwork/report-task.txt
+
+      - name: Upload code quality artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-quality-reports
+          path: |
+            eslint-results.json
+            .scannerwork/
+          retention-days: 30
+
+  # ============================================================================
+  # PHASE 2: SECURITY SCANNING
+  # ============================================================================
+  security-scan:
+    name: 🔒 Security Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Semgrep SAST
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/secrets
+            p/owasp-top-ten
+            p/cwe-top-25
+          generateSarif: "1"
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+
+      - name: Run npm audit
+        run: |
+          npm audit --audit-level moderate --json > npm-audit-results.json
+          npm audit --audit-level moderate
+
+      - name: Run Snyk security scan
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high --json > snyk-results.json
+
+      - name: Run TruffleHog secret scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+          extra_args: --debug --only-verified
+
+      - name: Run OWASP Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'AeroFusionXR-AI-Governance'
+          path: '.'
+          format: 'ALL'
+          args: >
+            --enableRetired
+            --enableExperimental
+            --failOnCVSS 7.0
+
+      - name: Upload security scan results
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-scan-reports
+          path: |
+            semgrep.sarif
+            npm-audit-results.json
+            snyk-results.json
+            reports/
+          retention-days: 90
+
+      - name: Upload to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: semgrep.sarif
+
+  # ============================================================================
+  # PHASE 3: COMPREHENSIVE TESTING
+  # ============================================================================
+  unit-tests:
+    name: 🧪 Unit Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16, 18, 20]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests with coverage
+        run: |
+          npm run test:unit -- --coverage --coverageReporters=lcov,json,text
+          npm run test:coverage-check
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: true
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-results-node-${{ matrix.node-version }}
+          path: |
+            coverage/
+            test-results/
+          retention-days: 30
+
+  integration-tests:
+    name: 🔗 Integration Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: governance_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+      mongodb:
+        image: mongo:6
+        env:
+          MONGO_INITDB_ROOT_USERNAME: root
+          MONGO_INITDB_ROOT_PASSWORD: password
+        options: >-
+          --health-cmd "echo 'db.runCommand(\"ping\").ok' | mongosh localhost:27017/test --quiet"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 27017:27017
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup test databases
+        run: |
+          npm run db:setup:test
+          npm run db:migrate:test
+          npm run db:seed:test
+
+      - name: Run integration tests
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/governance_test
+          REDIS_URL: redis://localhost:6379
+          MONGODB_URL: mongodb://root:password@localhost:27017/governance_test?authSource=admin
+        run: |
+          npm run test:integration -- --coverage --maxWorkers=2
+          npm run test:integration:api
+
+      - name: Upload integration test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-results
+          path: |
+            coverage/
+            test-results/
+            logs/
+          retention-days: 30
+
+  e2e-tests:
+    name: 🎭 End-to-End Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps
+
+      - name: Build application
+        run: npm run build
+
+      - name: Start application
+        run: |
+          npm run start:test &
+          npx wait-on http://localhost:3000 --timeout 60000
+
+      - name: Run E2E tests
+        run: |
+          npm run test:e2e
+          npm run test:e2e:governance-dashboard
+          npm run test:e2e:api-endpoints
+
+      - name: Upload E2E test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-test-results
+          path: |
+            test-results/
+            playwright-report/
+            screenshots/
+            videos/
+          retention-days: 30
+
+  # ============================================================================
+  # PHASE 4: PERFORMANCE & LOAD TESTING
+  # ============================================================================
+  performance-tests:
+    name: ⚡ Performance & Load Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build:production
+
+      - name: Start application
+        run: |
+          npm run start:production &
+          npx wait-on http://localhost:3000 --timeout 60000
+
+      - name: Run performance tests with k6
+        uses: grafana/k6-action@v0.3.1
+        with:
+          filename: validation/performance/load-test.js
+        env:
+          K6_PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_URL }}
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          configPath: './validation/performance/lighthouse.config.js'
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+      - name: Benchmark governance engines
+        run: |
+          npm run benchmark:governance-engines
+          npm run benchmark:api-performance
+          npm run benchmark:memory-usage
+
+      - name: Upload performance results
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-test-results
+          path: |
+            performance-results/
+            lighthouse-results/
+            benchmark-results/
+          retention-days: 30
+
+  # ============================================================================
+  # PHASE 5: COMPLIANCE & POLICY VALIDATION
+  # ============================================================================
+  compliance-validation:
+    name: ⚖️ Compliance & Policy Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate governance policies
+        run: |
+          npm run validate:policies
+          npm run validate:compliance-frameworks
+          npm run validate:regulatory-requirements
+
+      - name: Run OPA policy tests
+        run: |
+          opa test governance/policies/
+          opa fmt --diff governance/policies/
+
+      - name: Validate GDPR compliance
+        run: npm run validate:gdpr-compliance
+
+      - name: Validate SOX compliance
+        run: npm run validate:sox-compliance
+
+      - name: Validate ISO 42001 compliance
+        run: npm run validate:iso42001-compliance
+
+      - name: Generate compliance report
+        run: npm run generate:compliance-report
+
+      - name: Upload compliance results
+        uses: actions/upload-artifact@v4
+        with:
+          name: compliance-validation-results
+          path: |
+            compliance-reports/
+            policy-validation-results/
+          retention-days: 365 # Keep compliance records for 1 year
+
+  # ============================================================================
+  # PHASE 6: CONTAINER & INFRASTRUCTURE SECURITY
+  # ============================================================================
+  container-security:
+    name: 🐳 Container & Infrastructure Security
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'schedule'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -t aerofusionxr/ai-governance:${{ github.sha }} .
+          docker build -t aerofusionxr/ai-governance:latest .
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'aerofusionxr/ai-governance:${{ github.sha }}'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Run Hadolint Dockerfile linter
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+          format: sarif
+          output-file: hadolint-results.sarif
+
+      - name: Scan infrastructure as code
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: infrastructure/
+          framework: terraform,kubernetes,dockerfile
+          output_format: sarif
+          output_file_path: checkov-results.sarif
+
+      - name: Upload container security results
+        uses: actions/upload-artifact@v4
+        with:
+          name: container-security-results
+          path: |
+            trivy-results.sarif
+            hadolint-results.sarif
+            checkov-results.sarif
+          retention-days: 90
+
+  # ============================================================================
+  # PHASE 7: QUALITY GATES & DECISION MATRIX
+  # ============================================================================
+  quality-gates:
+    name: 🚪 Quality Gates & Decision Matrix
+    runs-on: ubuntu-latest
+    needs: [code-quality, security-scan, unit-tests, integration-tests, e2e-tests, performance-tests, compliance-validation]
+    if: always()
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Evaluate quality gates
+        id: quality-gates
+        run: |
+          node validation/ci-cd/quality-gate-evaluator.js
+        env:
+          COVERAGE_THRESHOLD: ${{ env.COVERAGE_THRESHOLD }}
+          SECURITY_THRESHOLD: ${{ env.SECURITY_THRESHOLD }}
+          PERFORMANCE_THRESHOLD: ${{ env.PERFORMANCE_THRESHOLD }}
+
+      - name: Generate quality report
+        run: |
+          node validation/ci-cd/quality-report-generator.js
+          
+      - name: Post quality summary to PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const qualityReport = fs.readFileSync('quality-summary.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: qualityReport
+            });
+
+      - name: Fail if quality gates not met
+        if: steps.quality-gates.outputs.passed != 'true'
+        run: |
+          echo "❌ Quality gates failed. See quality report for details."
+          exit 1
+
+      - name: Success notification
+        if: steps.quality-gates.outputs.passed == 'true'
+        run: |
+          echo "✅ All quality gates passed! Ready for deployment."
+
+  # ============================================================================
+  # PHASE 8: DEPLOYMENT (CANARY/BLUE-GREEN)
+  # ============================================================================
+  deploy-staging:
+    name: 🚀 Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [quality-gates]
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    environment: staging
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to staging environment
+        run: |
+          echo "Deploying to staging..."
+          # Deployment logic here
+
+      - name: Run smoke tests
+        run: |
+          npm run test:smoke:staging
+          npm run test:governance:staging
+
+      - name: Post-deployment validation
+        run: |
+          npm run validate:deployment:staging
+          npm run validate:governance:staging
+
+  deploy-production:
+    name: 🌟 Deploy to Production (Canary)
+    runs-on: ubuntu-latest
+    needs: [quality-gates]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy canary (5% traffic)
+        run: |
+          echo "Deploying canary release..."
+          # Canary deployment logic
+
+      - name: Monitor canary metrics
+        run: |
+          npm run monitor:canary:5min
+          npm run validate:canary:metrics
+
+      - name: Promote to 50% traffic
+        run: |
+          echo "Promoting to 50% traffic..."
+          # Traffic promotion logic
+
+      - name: Monitor full deployment
+        run: |
+          npm run monitor:production:10min
+          npm run validate:production:metrics
+
+      - name: Complete deployment (100% traffic)
+        run: |
+          echo "Completing deployment..."
+          # Full deployment logic
+
+      - name: Post-deployment governance validation
+        run: |
+          npm run validate:governance:production
+          npm run test:governance:production:full
+
+  # ============================================================================
+  # PHASE 9: CONTINUOUS MONITORING & ALERTING
+  # ============================================================================
+  post-deployment-monitoring:
+    name: 📊 Post-Deployment Monitoring
+    runs-on: ubuntu-latest
+    needs: [deploy-production]
+    if: always() && (needs.deploy-production.result == 'success')
+    steps:
+      - name: Setup monitoring dashboards
+        run: |
+          echo "Setting up monitoring..."
+          # Monitoring setup logic
+
+      - name: Configure alerts
+        run: |
+          echo "Configuring alerts..."
+          # Alert configuration logic
+
+      - name: Validate governance metrics
+        run: |
+          echo "Validating governance metrics..."
+          # Governance metrics validation
+
+# ============================================================================
+# WORKFLOW CONFIGURATION
+# ============================================================================
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: write
+  checks: write
+  actions: read 

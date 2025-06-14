@@ -25,6 +25,51 @@ data:
   NOTIFICATIONS_URL: "http://notifications-service:8007"
   RECOMMENDATIONS_URL: "http://recommendations-service:8008"
   
+  # ==========================================
+  # ⚖️ AI GOVERNANCE SERVICES
+  # ==========================================
+  GOVERNANCE_ARCHITECTURE_URL: "http://governance-architecture-service:3001"
+  AUDIT_ORCHESTRATOR_URL: "http://audit-orchestrator-service:3002"
+  SAFETY_CIRCUIT_BREAKER_URL: "http://safety-circuit-breaker-service:3003"
+  DATA_LINEAGE_URL: "http://data-lineage-service:3004"
+  TRAINING_GOVERNANCE_URL: "http://training-governance-service:3005"
+  FEEDBACK_OPTIMIZATION_URL: "http://feedback-optimization-service:3006"
+  REGULATORY_INTELLIGENCE_URL: "http://regulatory-intelligence-service:3007"
+  PRIVACY_TECHNOLOGIES_URL: "http://privacy-technologies-service:3008"
+  SUSTAINABILITY_TRACKING_URL: "http://sustainability-tracking-service:3009"
+  SUPPLY_CHAIN_GOVERNANCE_URL: "http://supply-chain-governance-service:3010"
+  RECOURSE_REMEDIATION_URL: "http://recourse-remediation-service:3011"
+  ETHICS_FAIRNESS_URL: "http://ethics-fairness-service:3012"
+  CONTINUOUS_LEARNING_URL: "http://continuous-learning-service:3013"
+  IMPACT_ACCOUNTABILITY_URL: "http://impact-accountability-service:3014"
+  EMERGING_TECH_GOVERNANCE_URL: "http://emerging-tech-governance-service:3015"
+  
+  # Governance Configuration
+  GOVERNANCE_ENABLED: "true"
+  GOVERNANCE_MATURITY_LEVEL: "5"
+  GOVERNANCE_METRICS_INTERVAL: "60"
+  GOVERNANCE_ALERT_THRESHOLD_AVAILABILITY: "0.9997"
+  GOVERNANCE_ALERT_THRESHOLD_ERROR_RATE: "0.0003"
+  GOVERNANCE_ALERT_THRESHOLD_RESPONSE_TIME: "500"
+  
+  # Quality Gates
+  QUALITY_GATE_ESLINT_CRITICAL: "0"
+  QUALITY_GATE_ESLINT_HIGH: "0"
+  QUALITY_GATE_DOCUMENTATION_COVERAGE: "0.90"
+  QUALITY_GATE_UNIT_TESTS: "0.90"
+  QUALITY_GATE_INTEGRATION_TESTS: "0.85"
+  QUALITY_GATE_E2E_TESTS: "0.80"
+  QUALITY_GATE_GOVERNANCE_TESTS: "0.95"
+  QUALITY_GATE_CRITICAL_VULNERABILITIES: "0"
+  QUALITY_GATE_HIGH_VULNERABILITIES: "0"
+  QUALITY_GATE_SECRETS_DETECTED: "0"
+  QUALITY_GATE_API_RESPONSE_TIME_P95: "500"
+  QUALITY_GATE_LIGHTHOUSE_SCORE: "90"
+  QUALITY_GATE_GDPR_COMPLIANCE: "0.95"
+  QUALITY_GATE_SOX_COMPLIANCE: "0.95"
+  QUALITY_GATE_ISO27001_COMPLIANCE: "0.90"
+  QUALITY_GATE_NIST_CSF_COMPLIANCE: "0.90"
+  
   # Monitoring & Observability
   OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger-collector:14268/api/traces"
   PROMETHEUS_ENDPOINT: "http://prometheus-service:9090"

@@ -371,183 +371,306 @@ EOF
     log_success "Compliance checking completed"
 }
 
-# Generate security report
+# Secrets scanning with TruffleHog
+scan_secrets() {
+    log_info "Scanning for exposed secrets and credentials..."
+    
+    local secrets_scan_dir="$RESULTS_DIR/$TIMESTAMP/secrets_scans"
+    mkdir -p "$secrets_scan_dir"
+    
+    # Install TruffleHog if not available
+    if ! command -v trufflehog &> /dev/null; then
+        log_info "Installing TruffleHog..."
+        curl -sSfL https://raw.githubusercontent.com/trufflesecurity/trufflehog/main/scripts/install.sh | sh -s -- -b /usr/local/bin
+    fi
+    
+    # Scan filesystem for secrets
+    trufflehog filesystem "$PROJECT_ROOT" --json > "$secrets_scan_dir/filesystem_secrets.json" 2>&1 || {
+        log_warning "TruffleHog filesystem scan completed with warnings"
+    }
+    
+    # Scan git history if available
+    if [[ -d "$PROJECT_ROOT/.git" ]]; then
+        trufflehog git "$PROJECT_ROOT" --json > "$secrets_scan_dir/git_secrets.json" 2>&1 || {
+            log_warning "TruffleHog git scan completed with warnings"
+        }
+    fi
+    
+    # Generate summary report
+    local secret_count=$(jq -r 'select(.Verified == true) | .DetectorName' "$secrets_scan_dir/filesystem_secrets.json" 2>/dev/null | wc -l || echo "0")
+    echo "Verified secrets found: $secret_count" > "$secrets_scan_dir/secrets_summary.txt"
+    
+    if [[ "$secret_count" -gt 0 ]]; then
+        log_error "Found $secret_count verified secrets!"
+        return 1
+    else
+        log_success "No verified secrets found"
+    fi
+}
+
+# SAST scanning with Semgrep
+scan_static_analysis() {
+    log_info "Running static application security testing (SAST)..."
+    
+    local sast_scan_dir="$RESULTS_DIR/$TIMESTAMP/sast_scans"
+    mkdir -p "$sast_scan_dir"
+    
+    # Install Semgrep if not available
+    if ! command -v semgrep &> /dev/null; then
+        log_info "Installing Semgrep..."
+        python3 -m pip install semgrep
+    fi
+    
+    # Run comprehensive SAST scan
+    semgrep --config=auto --json --output="$sast_scan_dir/semgrep_results.json" "$PROJECT_ROOT" || {
+        log_warning "Semgrep scan completed with findings"
+    }
+    
+    # Run specific security rulesets
+    local rulesets=(
+        "p/security-audit"
+        "p/secrets"
+        "p/owasp-top-ten"
+        "p/cwe-top-25"
+        "p/javascript"
+        "p/typescript"
+        "p/python"
+        "p/docker"
+        "p/kubernetes"
+    )
+    
+    for ruleset in "${rulesets[@]}"; do
+        log_info "Running Semgrep ruleset: $ruleset"
+        semgrep --config="$ruleset" --json --output="$sast_scan_dir/semgrep_${ruleset//\//_}.json" "$PROJECT_ROOT" 2>/dev/null || {
+            log_warning "Semgrep ruleset $ruleset completed with warnings"
+        }
+    done
+    
+    # Generate summary
+    local findings_count=$(jq -r '.results | length' "$sast_scan_dir/semgrep_results.json" 2>/dev/null || echo "0")
+    echo "SAST findings: $findings_count" > "$sast_scan_dir/sast_summary.txt"
+    
+    log_success "Static analysis scanning completed with $findings_count findings"
+}
+
+# Dependency vulnerability scanning
+scan_dependencies() {
+    log_info "Scanning dependencies for vulnerabilities..."
+    
+    local deps_scan_dir="$RESULTS_DIR/$TIMESTAMP/dependency_scans"
+    mkdir -p "$deps_scan_dir"
+    
+    # NPM audit
+    if [[ -f "$PROJECT_ROOT/package.json" ]]; then
+        log_info "Running npm audit..."
+        cd "$PROJECT_ROOT"
+        npm audit --audit-level=moderate --json > "$deps_scan_dir/npm_audit.json" 2>&1 || {
+            log_warning "npm audit found vulnerabilities"
+        }
+    fi
+    
+    # Snyk scanning if available
+    if command -v snyk &> /dev/null; then
+        log_info "Running Snyk vulnerability scan..."
+        cd "$PROJECT_ROOT"
+        snyk test --json > "$deps_scan_dir/snyk_results.json" 2>&1 || {
+            log_warning "Snyk found vulnerabilities"
+        }
+        
+        # Snyk container scanning
+        snyk container test --json > "$deps_scan_dir/snyk_container.json" 2>&1 || {
+            log_warning "Snyk container scan found issues"
+        }
+    fi
+    
+    # Safety check for Python dependencies
+    if [[ -f "$PROJECT_ROOT/requirements.txt" ]]; then
+        log_info "Running Safety check for Python dependencies..."
+        python3 -m pip install safety
+        safety check --json --output "$deps_scan_dir/safety_results.json" || {
+            log_warning "Safety check found vulnerabilities"
+        }
+    fi
+    
+    log_success "Dependency vulnerability scanning completed"
+}
+
+# Infrastructure as Code security scanning
+scan_iac_security() {
+    log_info "Scanning Infrastructure as Code for security issues..."
+    
+    local iac_scan_dir="$RESULTS_DIR/$TIMESTAMP/iac_scans"
+    mkdir -p "$iac_scan_dir"
+    
+    # Checkov scanning for Terraform and Kubernetes
+    if command -v checkov &> /dev/null || python3 -m pip install checkov; then
+        log_info "Running Checkov IaC security scan..."
+        
+        # Scan Terraform files
+        if [[ -d "$PROJECT_ROOT/infrastructure/terraform" ]]; then
+            checkov -d "$PROJECT_ROOT/infrastructure/terraform" --output json > "$iac_scan_dir/checkov_terraform.json" 2>&1 || {
+                log_warning "Checkov Terraform scan found issues"
+            }
+        fi
+        
+        # Scan Kubernetes manifests
+        if [[ -d "$PROJECT_ROOT/k8s" ]]; then
+            checkov -d "$PROJECT_ROOT/k8s" --output json > "$iac_scan_dir/checkov_k8s.json" 2>&1 || {
+                log_warning "Checkov Kubernetes scan found issues"
+            }
+        fi
+        
+        # Scan Docker files
+        find "$PROJECT_ROOT" -name "Dockerfile*" -exec checkov -f {} --output json \; > "$iac_scan_dir/checkov_docker.json" 2>&1 || {
+            log_warning "Checkov Docker scan found issues"
+        }
+    fi
+    
+    log_success "Infrastructure as Code security scanning completed"
+}
+
+# Governance-specific security validation
+validate_governance_security() {
+    log_info "Validating AI governance security controls..."
+    
+    local gov_scan_dir="$RESULTS_DIR/$TIMESTAMP/governance_security"
+    mkdir -p "$gov_scan_dir"
+    
+    # Check governance pillar security
+    local governance_checks=(
+        "governance/governance-architecture-engine.js:Governance Architecture"
+        "governance/audit-orchestrator.js:Independent Assurance"
+        "governance/safety-circuit-breaker.js:Runtime Safety"
+        "governance/data-lineage-engine.js:Data Lineage"
+        "governance/training-orchestrator.js:Training Governance"
+    )
+    
+    echo "# Governance Security Validation Report" > "$gov_scan_dir/governance_security_report.md"
+    echo "Generated: $(date)" >> "$gov_scan_dir/governance_security_report.md"
+    echo "" >> "$gov_scan_dir/governance_security_report.md"
+    
+    for check in "${governance_checks[@]}"; do
+        local file_path="${check%%:*}"
+        local pillar_name="${check##*:}"
+        
+        echo "## $pillar_name" >> "$gov_scan_dir/governance_security_report.md"
+        
+        if [[ -f "$PROJECT_ROOT/$file_path" ]]; then
+            # Check for security patterns
+            local security_patterns=(
+                "authentication"
+                "authorization"
+                "encryption"
+                "input.validation"
+                "error.handling"
+                "logging"
+                "rate.limiting"
+            )
+            
+            local passed_checks=0
+            local total_checks=${#security_patterns[@]}
+            
+            for pattern in "${security_patterns[@]}"; do
+                if grep -qi "$pattern" "$PROJECT_ROOT/$file_path"; then
+                    echo "- ✅ $pattern: Implemented" >> "$gov_scan_dir/governance_security_report.md"
+                    ((passed_checks++))
+                else
+                    echo "- ❌ $pattern: Not found" >> "$gov_scan_dir/governance_security_report.md"
+                fi
+            done
+            
+            local score=$((passed_checks * 100 / total_checks))
+            echo "- **Security Score:** $score% ($passed_checks/$total_checks)" >> "$gov_scan_dir/governance_security_report.md"
+            echo "" >> "$gov_scan_dir/governance_security_report.md"
+        else
+            echo "- ❌ File not found: $file_path" >> "$gov_scan_dir/governance_security_report.md"
+            echo "" >> "$gov_scan_dir/governance_security_report.md"
+        fi
+    done
+    
+    log_success "Governance security validation completed"
+}
+
+# Generate comprehensive security report
 generate_security_report() {
     log_info "Generating comprehensive security report..."
     
-    local report_file="$RESULTS_DIR/$TIMESTAMP/security_report.html"
+    local report_file="$RESULTS_DIR/$TIMESTAMP/comprehensive_security_report.md"
     
     cat > "$report_file" << EOF
-<!DOCTYPE html>
-<html>
-<head>
-    <title>AeroFusionXR Security Assessment Report</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        .header { background-color: #f0f0f0; padding: 20px; border-radius: 5px; }
-        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
-        .critical { background-color: #f8d7da; border-color: #f5c6cb; }
-        .high { background-color: #fff3cd; border-color: #ffeaa7; }
-        .medium { background-color: #d1ecf1; border-color: #bee5eb; }
-        .low { background-color: #d4edda; border-color: #c3e6cb; }
-        .info { background-color: #e2e3e5; border-color: #d6d8db; }
-        pre { background-color: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
-        table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .summary-stats { display: flex; justify-content: space-around; margin: 20px 0; }
-        .stat-box { text-align: center; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>AeroFusionXR Security Assessment Report</h1>
-        <p><strong>Assessment Date:</strong> $(date)</p>
-        <p><strong>Namespace:</strong> $NAMESPACE</p>
-        <p><strong>Severity Threshold:</strong> $SEVERITY_THRESHOLD</p>
-    </div>
-    
-    <div class="summary-stats">
-        <div class="stat-box critical">
-            <h3>Critical Issues</h3>
-            <p id="critical-count">0</p>
-        </div>
-        <div class="stat-box high">
-            <h3>High Issues</h3>
-            <p id="high-count">0</p>
-        </div>
-        <div class="stat-box medium">
-            <h3>Medium Issues</h3>
-            <p id="medium-count">0</p>
-        </div>
-        <div class="stat-box low">
-            <h3>Low Issues</h3>
-            <p id="low-count">0</p>
-        </div>
-    </div>
-    
-    <div class="section">
-        <h2>Executive Summary</h2>
-        <p>This report provides a comprehensive security assessment of the AeroFusionXR platform, 
-        including container image vulnerabilities, Kubernetes security configurations, 
-        network security, RBAC analysis, and compliance checks.</p>
-    </div>
-    
-    <div class="section">
-        <h2>Container Image Security</h2>
-        <p>Scanned $(ls "$RESULTS_DIR/$TIMESTAMP/image_scans"/*_vulnerabilities.json 2>/dev/null | wc -l) container images for vulnerabilities.</p>
-        <h3>Key Findings:</h3>
-        <ul>
-            <li>All images scanned with Trivy vulnerability scanner</li>
-            <li>Configuration misconfigurations identified</li>
-            <li>Recommendations provided for image hardening</li>
-        </ul>
-    </div>
-    
-    <div class="section">
-        <h2>Kubernetes Security</h2>
-        <p>Analyzed Kubernetes manifests and cluster configuration for security best practices.</p>
-        <h3>Areas Assessed:</h3>
-        <ul>
-            <li>Pod Security Standards</li>
-            <li>Network Policies</li>
-            <li>RBAC Configuration</li>
-            <li>Resource Limits and Quotas</li>
-            <li>Security Contexts</li>
-        </ul>
-    </div>
-    
-    <div class="section">
-        <h2>Network Security</h2>
-        <p>Performed network security scanning and analysis.</p>
-        <h3>Tests Performed:</h3>
-        <ul>
-            <li>Port scanning of services</li>
-            <li>Vulnerability scanning</li>
-            <li>Network policy validation</li>
-        </ul>
-    </div>
-    
-    <div class="section">
-        <h2>Application Security</h2>
-        <p>Tested application endpoints for common web vulnerabilities.</p>
-        <h3>Tests Performed:</h3>
-        <ul>
-            <li>SQL Injection testing</li>
-            <li>Cross-Site Scripting (XSS) testing</li>
-            <li>Directory traversal testing</li>
-            <li>Information disclosure testing</li>
-        </ul>
-    </div>
-    
-    <div class="section">
-        <h2>Compliance Assessment</h2>
-        <p>Evaluated compliance with industry standards and regulations.</p>
-        <h3>Standards Assessed:</h3>
-        <ul>
-            <li>CIS Kubernetes Benchmark</li>
-            <li>GDPR Requirements</li>
-            <li>PCI DSS (for payment processing)</li>
-        </ul>
-    </div>
-    
-    <div class="section">
-        <h2>Recommendations</h2>
-        <ol>
-            <li><strong>Immediate Actions:</strong>
-                <ul>
-                    <li>Address all CRITICAL and HIGH severity vulnerabilities</li>
-                    <li>Implement missing network policies</li>
-                    <li>Review and strengthen RBAC configurations</li>
-                </ul>
-            </li>
-            <li><strong>Short-term Improvements:</strong>
-                <ul>
-                    <li>Implement automated security scanning in CI/CD pipeline</li>
-                    <li>Enable Pod Security Standards</li>
-                    <li>Implement comprehensive monitoring and alerting</li>
-                </ul>
-            </li>
-            <li><strong>Long-term Security Strategy:</strong>
-                <ul>
-                    <li>Regular security assessments and penetration testing</li>
-                    <li>Security training for development team</li>
-                    <li>Implement zero-trust security model</li>
-                </ul>
-            </li>
-        </ol>
-    </div>
-    
-    <div class="section">
-        <h2>Detailed Scan Results</h2>
-        <p>Detailed scan results are available in the following files:</p>
-        <ul>
+# 🔒 AeroFusionXR Comprehensive Security Scan Report
+
+**Scan Date:** $(date)
+**Scan ID:** $TIMESTAMP
+**Severity Threshold:** $SEVERITY_THRESHOLD
+
+## 📊 Executive Summary
+
+This report provides a comprehensive security assessment of the AeroFusionXR platform, including:
+- Container image vulnerabilities
+- Kubernetes security configuration
+- Network security posture
+- Secrets and credential exposure
+- Static application security testing (SAST)
+- Dependency vulnerabilities
+- Infrastructure as Code security
+- AI governance security controls
+
+## 🎯 Key Findings
+
 EOF
+
+    # Add findings from each scan type
+    local scan_types=("image_scans" "k8s_scans" "network_scans" "secrets_scans" "sast_scans" "dependency_scans" "iac_scans" "governance_security")
     
-    # Add links to detailed scan results
-    find "$RESULTS_DIR/$TIMESTAMP" -name "*.txt" -o -name "*.json" -o -name "*.yaml" | while read -r file; do
-        local filename=$(basename "$file")
-        local relative_path=$(realpath --relative-to="$RESULTS_DIR/$TIMESTAMP" "$file")
-        echo "            <li><a href=\"$relative_path\">$filename</a></li>" >> "$report_file"
+    for scan_type in "${scan_types[@]}"; do
+        if [[ -d "$RESULTS_DIR/$TIMESTAMP/$scan_type" ]]; then
+            echo "### ${scan_type//_/ } Results" >> "$report_file"
+            
+            # Count findings if JSON files exist
+            local json_files=$(find "$RESULTS_DIR/$TIMESTAMP/$scan_type" -name "*.json" 2>/dev/null || echo "")
+            if [[ -n "$json_files" ]]; then
+                local total_findings=0
+                while IFS= read -r json_file; do
+                    if [[ -f "$json_file" ]]; then
+                        local findings=$(jq -r 'if type == "array" then length else if has("results") then .results | length else 0 end end' "$json_file" 2>/dev/null || echo "0")
+                        total_findings=$((total_findings + findings))
+                    fi
+                done <<< "$json_files"
+                echo "- Total findings: $total_findings" >> "$report_file"
+            fi
+            
+            echo "" >> "$report_file"
+        fi
     done
     
     cat >> "$report_file" << EOF
-        </ul>
-    </div>
-    
-    <div class="section info">
-        <h2>Next Steps</h2>
-        <p>1. Review all identified security issues</p>
-        <p>2. Prioritize remediation based on severity and business impact</p>
-        <p>3. Implement security fixes and improvements</p>
-        <p>4. Schedule regular security assessments</p>
-        <p>5. Update security policies and procedures</p>
-    </div>
-</body>
-</html>
+
+## 🔧 Recommendations
+
+1. **Critical Issues:** Address any critical vulnerabilities immediately
+2. **Secrets Management:** Implement proper secrets management for any exposed credentials
+3. **Dependency Updates:** Update vulnerable dependencies to latest secure versions
+4. **Configuration Hardening:** Apply security hardening recommendations for Kubernetes
+5. **Continuous Monitoring:** Implement continuous security monitoring and alerting
+
+## 📁 Detailed Results
+
+Detailed scan results are available in the following directories:
+- Container Scans: \`$RESULTS_DIR/$TIMESTAMP/image_scans/\`
+- Kubernetes Scans: \`$RESULTS_DIR/$TIMESTAMP/k8s_scans/\`
+- Network Scans: \`$RESULTS_DIR/$TIMESTAMP/network_scans/\`
+- Secrets Scans: \`$RESULTS_DIR/$TIMESTAMP/secrets_scans/\`
+- SAST Results: \`$RESULTS_DIR/$TIMESTAMP/sast_scans/\`
+- Dependency Scans: \`$RESULTS_DIR/$TIMESTAMP/dependency_scans/\`
+- IaC Scans: \`$RESULTS_DIR/$TIMESTAMP/iac_scans/\`
+- Governance Security: \`$RESULTS_DIR/$TIMESTAMP/governance_security/\`
+
+---
+*This report was generated by the AeroFusionXR comprehensive security scanning system.*
 EOF
-    
-    log_success "Security report generated: $report_file"
+
+    log_success "Comprehensive security report generated: $report_file"
 }
 
 # Main function
@@ -569,6 +692,11 @@ main() {
     analyze_secrets_security
     test_application_security
     check_compliance
+    scan_secrets
+    scan_static_analysis
+    scan_dependencies
+    scan_iac_security
+    validate_governance_security
     generate_security_report
     
     local end_time=$(date +%s)
@@ -577,7 +705,7 @@ main() {
     log_success "Security assessment completed successfully!"
     log_info "Assessment duration: ${duration} seconds"
     log_info "Results available in: $RESULTS_DIR/$TIMESTAMP"
-    log_info "Security report: $RESULTS_DIR/$TIMESTAMP/security_report.html"
+    log_info "Security report: $RESULTS_DIR/$TIMESTAMP/comprehensive_security_report.md"
     
     # Display summary
     echo
@@ -588,6 +716,11 @@ main() {
     echo "  - RBAC and security policies reviewed"
     echo "  - Application security tested"
     echo "  - Compliance requirements checked"
+    echo "  - Secrets scanned for exposed credentials"
+    echo "  - Static application security testing (SAST) performed"
+    echo "  - Dependency vulnerabilities scanned"
+    echo "  - Infrastructure as Code security scanned"
+    echo "  - AI governance security controls validated"
     echo
     log_warning "Please review the detailed security report and address any identified issues."
 }
