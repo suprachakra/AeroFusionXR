@@ -1114,10 +1114,3 @@ class CarbonReductionTargets:
 #### Total ROI: 2,500%+ over 5 years
 
 ---
-
-**Document Control**
-- **Version**: 1.0
-- **Last Updated**: December 2024
-- **Next Review**: March 2025
-- **Owner**: Chief Sustainability Officer
-- **Classification**: Confidential 
