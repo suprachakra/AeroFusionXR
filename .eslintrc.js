@@ -73,6 +73,42 @@ module.exports = {
     'eqeqeq': ['error', 'always'],
     'curly': ['error', 'all'],
     'max-len': ['error', { code: 100, ignoreUrls: true }],
+
+    // ==========================================
+    // ⚖️ AI GOVERNANCE RULES
+    // ==========================================
+    'complexity': ['error', { max: 10 }], // Governance: Code complexity limit
+    'max-depth': ['error', 4], // Governance: Maximum nesting depth
+    'max-lines': ['error', { max: 500, skipBlankLines: true, skipComments: true }], // Governance: File length limit
+    'max-lines-per-function': ['error', { max: 50, skipBlankLines: true, skipComments: true }], // Governance: Function length limit
+    'max-params': ['error', 5], // Governance: Parameter limit
+    'no-magic-numbers': ['warn', { ignore: [0, 1, -1], ignoreArrayIndexes: true }], // Governance: No magic numbers
+    'no-eval': 'error', // Security: No eval usage
+    'no-implied-eval': 'error', // Security: No implied eval
+    'no-new-func': 'error', // Security: No Function constructor
+    'no-script-url': 'error', // Security: No script URLs
+    'no-alert': 'error', // Governance: No alert usage in production
+    'no-debugger': 'error', // Governance: No debugger statements
+    'no-unused-expressions': 'error', // Governance: No unused expressions
+    'consistent-return': 'error', // Governance: Consistent return statements
+    'default-case': 'error', // Governance: Default case in switch statements
+    'dot-notation': 'error', // Governance: Use dot notation when possible
+    'guard-for-in': 'error', // Governance: Guard for-in loops
+    'no-caller': 'error', // Governance: No arguments.caller or arguments.callee
+    'no-empty-function': 'error', // Governance: No empty functions
+    'no-floating-decimal': 'error', // Governance: No floating decimals
+    'no-implicit-coercion': 'error', // Governance: No implicit type coercion
+    'no-multi-spaces': 'error', // Governance: No multiple spaces
+    'no-new': 'error', // Governance: No new for side effects
+    'no-new-wrappers': 'error', // Governance: No new wrappers
+    'no-throw-literal': 'error', // Governance: No throwing literals
+    'no-unmodified-loop-condition': 'error', // Governance: No unmodified loop conditions
+    'no-useless-call': 'error', // Governance: No useless call
+    'no-useless-concat': 'error', // Governance: No useless concatenation
+    'no-useless-return': 'error', // Governance: No useless return
+    'radix': 'error', // Governance: Require radix parameter
+    'require-await': 'error', // Governance: Require await in async functions
+    'yoda': 'error', // Governance: No yoda conditions
   },
   overrides: [
     {
