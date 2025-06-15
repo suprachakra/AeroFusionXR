@@ -537,10 +537,3 @@ This registry provides a comprehensive catalog of all AI/ML use cases within Aer
 - **Risk Manager**: risk@aerofusionxr.com
 
 ---
-
-**Document Control**
-- **Version**: 1.0
-- **Last Updated**: December 2024
-- **Next Review**: March 2025
-- **Owner**: AI Governance Committee
-- **Classification**: Internal Use Only 
