@@ -415,16 +415,16 @@ This policy applies to:
 ## 12. Contact Information
 
 ### 12.1 Governance Contacts
-- **AI Ethics Board Chair**: ai-ethics-chair@aerofusionxr.com
-- **Data Protection Officer**: dpo@aerofusionxr.com
-- **AI Engineering Lead**: ai-lead@aerofusionxr.com
-- **Compliance Manager**: compliance@aerofusionxr.com
+- **AI Ethics Board Chair**
+- **Data Protection Officer**
+- **AI Engineering Lead**
+- **Compliance Manager**
 
 ### 12.2 Emergency Contacts
-- **Incident Response**: incident-response@aerofusionxr.com
-- **Security Emergency**: security-emergency@aerofusionxr.com
-- **Executive Escalation**: exec-escalation@aerofusionxr.com
-- **Legal/Regulatory**: legal@aerofusionxr.com
+- **Incident Response**
+- **Security Emergency**
+- **Executive Escalation**
+- **Legal/Regulatory**
 
 ---
 
