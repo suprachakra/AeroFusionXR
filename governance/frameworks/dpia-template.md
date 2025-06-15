@@ -324,9 +324,3 @@ flowchart TD
 [Detailed records of stakeholder consultations]
 
 ---
-
-**Document Control**  
-**Owner**: Data Protection Officer  
-**Approved By**: AI Ethics Board  
-**Next Review**: [Date + 6 months]  
-**Classification**: Confidential 
