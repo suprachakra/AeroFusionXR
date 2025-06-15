@@ -3,7 +3,7 @@
 **Model Version**: [e.g., v1.2.0]  
 **Date**: [YYYY-MM-DD]  
 **Authors**: [Team/Individual Names]  
-**Contact**: [email@aerofusionxr.com]
+**Contact**: 
 
 ---
 
@@ -261,8 +261,3 @@ Regularization: [Dropout, L2, etc.]
 | **Product Owner** | [Name] | [Date] | [Digital signature] |
 
 ---
-
-**Document Version**: 1.0  
-**Last Updated**: [Date]  
-**Next Review**: [Date + 6 months]  
-**Classification**: Internal Use Only 
