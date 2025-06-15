@@ -321,10 +321,3 @@ This maturity model provides a structured framework for assessing and advancing 
 4. **Agile Implementation**: Iterative delivery with feedback loops
 
 ---
-
-**Document Control**
-- **Version**: 1.0
-- **Last Updated**: December 2024
-- **Next Review**: March 2025
-- **Owner**: AI Governance Committee
-- **Approver**: Chief AI Officer 
