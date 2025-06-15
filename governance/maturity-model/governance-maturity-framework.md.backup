@@ -137,6 +137,11 @@ The implementation is available in the Python module:
 - **Module**: `governance/advanced/implementations/governance_maturity_framework.py`
 - **Documentation**: See module docstrings for detailed API documentation
 
+```python
+# Example usage
+from governance.advanced.implementations.governance_maturity_framework import *
+```
+
 ---
 
 ## 2. Integration with Existing Systems
@@ -148,6 +153,11 @@ The implementation is available in the Python module:
 The implementation is available in the Python module:
 - **Module**: `governance/advanced/implementations/governance_maturity_framework.py`
 - **Documentation**: See module docstrings for detailed API documentation
+
+```python
+# Example usage
+from governance.advanced.implementations.governance_maturity_framework import *
+```
 
 ---
 
@@ -173,4 +183,4 @@ The implementation is available in the Python module:
 
 This integration approach ensures that your sophisticated Pillar 1 maturity model becomes the **central nervous system** for AeroFusionXR's governance, providing real-time visibility and continuous improvement across all advanced capabilities.
 
-Would you like me to proceed with implementing the dashboard and scoring systems, or would you prefer to review the remaining 14 pillars first to ensure optimal integration architecture?
+Would you like me to proceed with implementing the dashboard and scoring systems, or would you prefer to review the remaining 14 pillars first to ensure optimal integration architecture? 

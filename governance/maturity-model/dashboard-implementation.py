@@ -589,10 +589,73 @@ class MaturityDashboard:
         styled_df = df.style.applymap(color_priority, subset=['Priority'])
         st.dataframe(styled_df, use_container_width=True)
 
+    def render_feature_impact_analysis(self):
+        """Render feature impact analysis for product managers"""
+        st.write("Analysis of how product features impact governance maturity:")
+        
+        # Placeholder implementation
+        st.info("Feature impact analysis would be implemented here")
+    
+    def render_roadmap_alignment(self):
+        """Render roadmap alignment analysis"""
+        st.write("Alignment between product roadmap and governance goals:")
+        
+        # Placeholder implementation
+        st.info("Roadmap alignment analysis would be implemented here")
+    
+    def render_risk_innovation_balance(self):
+        """Render risk vs innovation balance analysis"""
+        st.write("Balance between risk management and innovation:")
+        
+        # Placeholder implementation
+        st.info("Risk vs innovation balance analysis would be implemented here")
+    
+    def render_technical_status(self):
+        """Render technical implementation status"""
+        st.write("Technical implementation status for engineers:")
+        
+        # Placeholder implementation
+        st.info("Technical status would be implemented here")
+    
+    def render_cicd_integration(self):
+        """Render CI/CD integration health"""
+        st.write("CI/CD integration health metrics:")
+        
+        # Placeholder implementation
+        st.info("CI/CD integration metrics would be implemented here")
+    
+    def render_code_quality_metrics(self):
+        """Render code quality metrics"""
+        st.write("Code quality and governance metrics:")
+        
+        # Placeholder implementation
+        st.info("Code quality metrics would be implemented here")
+    
+    def render_compliance_evidence(self):
+        """Render compliance evidence for auditors"""
+        st.write("Compliance evidence and documentation:")
+        
+        # Placeholder implementation
+        st.info("Compliance evidence would be implemented here")
+    
+    def render_audit_trail(self):
+        """Render audit trail"""
+        st.write("Audit trail and change history:")
+        
+        # Placeholder implementation
+        st.info("Audit trail would be implemented here")
+    
+    def render_risk_assessment(self):
+        """Render risk assessment"""
+        st.write("Risk assessment and mitigation status:")
+        
+        # Placeholder implementation
+        st.info("Risk assessment would be implemented here")
+
 # Main application
 def main():
     dashboard = MaturityDashboard()
     dashboard.render_dashboard()
 
 if __name__ == "__main__":
-    main() 
+    main()

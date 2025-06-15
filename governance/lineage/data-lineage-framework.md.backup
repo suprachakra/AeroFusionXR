@@ -106,12 +106,22 @@ The implementation is available in the Python module:
 - **Module**: `governance/advanced/implementations/data_lineage_framework.py`
 - **Documentation**: See module docstrings for detailed API documentation
 
+```python
+# Example usage
+from governance.advanced.implementations.data_lineage_framework import *
+```
+
 #### Automated Quality Remediation
 #### Implementation
 
 The implementation is available in the Python module:
 - **Module**: `governance/advanced/implementations/data_lineage_framework.py`
 - **Documentation**: See module docstrings for detailed API documentation
+
+```python
+# Example usage
+from governance.advanced.implementations.data_lineage_framework import *
+```
 
 ---
 
@@ -180,6 +190,11 @@ The implementation is available in the Python module:
 - **Module**: `governance/advanced/implementations/data_lineage_framework.py`
 - **Documentation**: See module docstrings for detailed API documentation
 
+```python
+# Example usage
+from governance.advanced.implementations.data_lineage_framework import *
+```
+
 ### 3.2 Quality Monitoring Infrastructure
 
 #### Great Expectations Integration
@@ -188,6 +203,11 @@ The implementation is available in the Python module:
 The implementation is available in the Python module:
 - **Module**: `governance/advanced/implementations/data_lineage_framework.py`
 - **Documentation**: See module docstrings for detailed API documentation
+
+```python
+# Example usage
+from governance.advanced.implementations.data_lineage_framework import *
+```
 
 ---
 
@@ -202,12 +222,22 @@ The implementation is available in the Python module:
 - **Module**: `governance/advanced/implementations/data_lineage_framework.py`
 - **Documentation**: See module docstrings for detailed API documentation
 
+```python
+# Example usage
+from governance.advanced.implementations.data_lineage_framework import *
+```
+
 #### Intelligent Data Imputation
 #### Implementation
 
 The implementation is available in the Python module:
 - **Module**: `governance/advanced/implementations/data_lineage_framework.py`
 - **Documentation**: See module docstrings for detailed API documentation
+
+```python
+# Example usage
+from governance.advanced.implementations.data_lineage_framework import *
+```
 
 ---
 
@@ -222,6 +252,11 @@ The implementation is available in the Python module:
 - **Module**: `governance/advanced/implementations/data_lineage_framework.py`
 - **Documentation**: See module docstrings for detailed API documentation
 
+```python
+# Example usage
+from governance.advanced.implementations.data_lineage_framework import *
+```
+
 ### 5.2 Automated Compliance Validation
 
 #### Compliance Checking Pipeline
@@ -230,6 +265,11 @@ The implementation is available in the Python module:
 The implementation is available in the Python module:
 - **Module**: `governance/advanced/implementations/data_lineage_framework.py`
 - **Documentation**: See module docstrings for detailed API documentation
+
+```python
+# Example usage
+from governance.advanced.implementations.data_lineage_framework import *
+```
 
 ---
 
@@ -379,4 +419,4 @@ The implementation is available in the Python module:
 - **Last Updated**: December 2024
 - **Next Review**: March 2025
 - **Owner**: Chief Data Officer
-- **Classification**: Confidential
+- **Classification**: Confidential 
