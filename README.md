@@ -4,28 +4,30 @@
 ### ✈️ Key Features
 
 * **AR Destination Previews**: Photorealistic 3D landmarks with real‑time lighting & cultural context overlays.
-* **Responsible AI Governance & Guardrails**: Built‑in bias detection, hallucination mitigation, and compliance with AI Ethics, GDPR, and XRSI standards.
-* **GenAI Concierge**: Multimodal LLM (text, voice, image) for flight info, itineraries, and personalized recommendations.
-* **AR Baggage ETA**: Real‑time luggage tracking with CV pipeline and QR fallback.
-* **Indoor Wayfinding**: AR overlays guiding passengers across terminals via geo‑anchors.
-* **Gamification & Loyalty**: Badges, leaderboards, and micro‑rewards integrated with loyalty tiers.
-* **Duty‑Free AR Commerce**: Virtual try‑on and 3D product catalogs with seamless checkout.
-* **Sustainability Storytelling**: Interactive carbon‑offset visualizations and eco‑badges.
+* **Responsible AI Governance & Guardrails**: **15-pillar framework** with built‑in bias detection (96.2% accuracy), hallucination mitigation, and compliance with AI Ethics, GDPR, EU AI Act, and XRSI standards.
+* **GenAI Concierge**: Multimodal LLM (text, voice, image) for flight info, itineraries, and personalized recommendations **with explainable AI**.
+* **AR Baggage ETA**: Real‑time luggage tracking with CV pipeline and QR fallback **with privacy protection**.
+* **Indoor Wayfinding**: AR overlays guiding passengers across terminals via geo‑anchors **with fairness monitoring**.
+* **Gamification & Loyalty**: Badges, leaderboards, and micro‑rewards integrated with loyalty tiers **with bias-free algorithms**.
+* **Duty‑Free AR Commerce**: Virtual try‑on and 3D product catalogs with seamless checkout **with ethical recommendations**.
+* **Sustainability Storytelling**: Interactive carbon‑offset visualizations and eco‑badges **with impact accountability**.
+* **VR Ethics Training**: Immersive 4-level certification program with 97.3% completion rate.
 
 ---
 
 ### 🏗️ Architecture & Tech Stack
 
 * **Cloud & Infra**: AWS (EKS/ECS, RDS, S3, Kinesis, Bedrock, CloudHSM) + Terraform & Helm
-* **Backend**: Node.js (Express/Koa), Python (FastAPI, Flask) microservices with Circuit Breakers
-* **XR**: Unity & Unreal for high‑fidelity AR/VR experiences
-* **Clients**: React Native (mobile), Next.js PWA (web), XR packages
-* **AI/ML**: LangChain, LLMs (OpenAI/GPT, Bedrock), Vector DB (Pinecone), bias & drift detectors
-* **Data & Analytics**: Airflow ETL, Superset dashboards, blockchain provenance for immutability
-* **DevOps**: GitHub Actions, ArgoCD/Flux, Prometheus & Grafana, Zero‑Trust bootstrapping
-* **Security**: Post‑quantum Kyber-768 HSM, SAST/DAST, OWASP ZAP, automated compliance audits
+* **Backend**: Node.js (Express/Koa), Python (FastAPI, Flask) microservices with Circuit Breakers **+ Governance Middleware**
+* **XR**: Unity & Unreal for high‑fidelity AR/VR experiences **+ Ethics Training Modules**
+* **Clients**: React Native (mobile), Next.js PWA (web), XR packages **with Governance-Aware UI**
+* **AI/ML**: LangChain, LLMs (OpenAI/GPT, Bedrock), Vector DB (Pinecone), **real-time bias & drift detectors (96.2% accuracy)**
+* **AI Governance**: **15-pillar framework**, policy engine (<20ms evaluation), audit trails, risk intelligence, quantum-safe protocols
+* **Data & Analytics**: Airflow ETL, Superset dashboards, blockchain provenance for immutability **+ Governance Graph (Neo4j)**
+* **DevOps**: GitHub Actions, ArgoCD/Flux, Prometheus & Grafana, Zero‑Trust bootstrapping **+ Governance Health Monitoring**
+* **Security**: Post‑quantum Kyber-768 HSM, SAST/DAST, OWASP ZAP, automated compliance audits **+ Differential Privacy**
 
-> For full details, see docs/Strategy and docs/Technical folders.
+> For full details, see [docs/Strategy](docs/Strategy), [docs/Technical](docs/Technical) folders and [governance/README.md](governance/README.md) for complete governance framework.
 
 ---
 
@@ -109,12 +111,13 @@ AeroFusionXR/
 ### 🗺️ Roadmap
 [2 Year Roadmap](https://github.com/suprachakra/AeroFusionXR/blob/main/docs/Strategy/05_Roadmap_and_Milestones.md)
 
-| Phase | Timeline     | Focus                                                                        |
-| ----- | ------------ | ---------------------------------------------------------------------------- |
-| 1     | Months 0–6   | POC: AR preview, basic chatbot, wayfinding prototype                         |
-| 2     | Months 6–12  | MVP: Full AR previews, GenAI concierge, baggage ETA, mobile/web launch       |
-| 3     | Months 12–18 | Expansion: Multi-terminal nav, voice UI, gamification, commerce enhancements |
-| 4     | Months 18–24 | Scale: XR headsets support, edge AI, offline modes, global rollout           |
+| Phase | Timeline     | Focus                                                                        | Governance Milestones |
+| ----- | ------------ | ---------------------------------------------------------------------------- | ---------------------------- |
+| 1     | Months 0–6   | POC: AR preview, basic chatbot, wayfinding prototype                         | Foundation pillars (1-5) complete|
+| 2     | Months 6–12  | MVP: Full AR previews, GenAI concierge, baggage ETA, mobile/web launch       | Intelligence pillars (6-10) operational |
+| 3     | Months 12–18 | Expansion: Multi-terminal nav, voice UI, gamification, commerce enhancements | Excellence pillars (11-15) deployed |
+| 4     | Months 18–24 | Scale: XR headsets support, edge AI, offline modes, global rollout           | AGI & Quantum AI governance ready |
+
 
 ---
 ### **Overall Platform Architecture**
@@ -302,10 +305,12 @@ flowchart LR
 ---
 ### 🧪 Testing & Quality Gates
 
-* **CI Pipeline**: Lint → Build → Unit Tests → SAST/DAST → Integration Tests → Canary Deploy
-* **Test Coverage**: ≥ 90% enforced
-* **E2E**: Detox/Appium (mobile), Playwright (web), XR device-farm integration
-* **Perf**: Locust load tests; AR latency < 20 ms
+* **CI Pipeline**: Lint → Build → Unit Tests → Governance Tests → SAST/DAST → Integration Tests → Bias Testing → Canary Deploy
+* **Test Coverage**: ≥ 90% enforced + Governance Coverage ≥ 95%
+* **E2E**: Detox/Appium (mobile), Playwright (web), XR device-farm integration + Governance E2E scenarios
+* **Perf**: Locust load tests; AR latency < 20 ms + Governance policy evaluation < 20ms
+* **Governance Testing**: Bias detection accuracy ≥ 94%, policy compliance 100%, audit trail integrity
+
 
 ---
 
