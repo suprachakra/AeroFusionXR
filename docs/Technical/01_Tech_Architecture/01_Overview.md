@@ -1,5 +1,13 @@
 ## AeroFusionXR Platform Architecture
 
+### Platform Overview
+AeroFusionXR is a comprehensive enterprise aviation platform delivering AR/XR experiences across mobile, web, and immersive environments. The platform serves 4 primary stakeholder groups:
+
+1. **Passengers** (10M+ users): Personalized journey management with AR navigation, real-time updates, and commerce integration
+2. **Airlines** (500+ partners): Operational dashboards, passenger analytics, and service optimization tools
+3. **Airports** (1000+ facilities): Facility management, crowd analytics, and operational intelligence
+4. **Partners** (10,000+ vendors): Integration APIs, marketplace access, and revenue sharing platforms
+
 ### Introduction & Strategic Goals
 A unified, narrative-driven architecture for Aerofusion XR, an enterprise-scale GenAI + XR platform tailored for a leading aviation group.
 
@@ -8,12 +16,18 @@ AeroFusionXR transforms aviation experiences through enterprise-grade AR/XR tech
 
 ### Strategic Objectives
 
-#### Business Goals
-- **Revenue Growth**: 300% increase in partner revenue through enhanced passenger experience
+#### Business Objectives
+- **Revenue Growth**: 300% increase in partner revenue through enhanced passenger experience 
 - **Market Leadership**: Establish dominant position in aviation AR/XR space (target 60% market share by 2027)
-- **Operational Excellence**: 99.9% uptime with <100ms response times globally
+- **Operational Excellence**: 99.99% uptime with <100ms response times globally
 - **User Satisfaction**: 95%+ NPS score across all touchpoints
 - **Regulatory Compliance**: 100% compliance with aviation, data privacy, and accessibility standards
+
+#### AI Governance Goals
+- **Governance Excellence**: World-class 15-pillar framework with 13,750% ROI
+- **Risk Mitigation**: $2.1B value protection through comprehensive governance
+- **Compliance Automation**: 99.7% automated compliance across all major regulations
+- **Decision Speed**: <50ms governance decisions (2x faster than target)
 
 #### Technical Goals
 - **Scalability**: Support 10M+ concurrent users across 1000+ airports globally
@@ -28,22 +42,13 @@ AeroFusionXR transforms aviation experiences through enterprise-grade AR/XR tech
 - **Omnichannel**: Consistent experience across mobile, web, XR, and kiosk platforms
 - **Real-time**: Live updates with <1s latency for critical aviation data
 
-### Success Metrics
+
+#### Success Metrics
 - **Technical KPIs**: 99.99% uptime, <100ms API response, 90fps AR rendering
 - **Business KPIs**: $500M+ revenue impact, 60% market share, 95% customer retention
 - **User KPIs**: 95%+ NPS, <30s task completion, 90%+ feature adoption
 
 ---
-
-## Executive Summary
-
-### Platform Overview
-AeroFusionXR is a comprehensive enterprise aviation platform delivering AR/XR experiences across mobile, web, and immersive environments. The platform serves 4 primary stakeholder groups:
-
-1. **Passengers** (10M+ users): Personalized journey management with AR navigation, real-time updates, and commerce integration
-2. **Airlines** (500+ partners): Operational dashboards, passenger analytics, and service optimization tools
-3. **Airports** (1000+ facilities): Facility management, crowd analytics, and operational intelligence
-4. **Partners** (10,000+ vendors): Integration APIs, marketplace access, and revenue sharing platforms
 
 ### Architecture Principles
 - **Cloud-Native**: Kubernetes-orchestrated microservices with auto-scaling
@@ -90,51 +95,63 @@ flowchart TB
 
   %% API Gateway Layer
   subgraph "API Gateway Layer"
-    APIGW[Kong API Gateway]
+    APIGW[Kong API Gateway + Governance]
     GraphQL[Apollo GraphQL]
     WebSocket[WebSocket Gateway]
     RateLimit[Rate Limiting]
     Auth[Authentication]
+    GovMiddleware[AI Governance Middleware]
   end
 
   %% Microservices Layer
   subgraph "Core Services - AWS Region A"
-    UserMgmt[User Management]
-    FlightInfo[Flight Information]
-    GenAI[GenAI Concierge]
-    Wayfinding[AR Wayfinding]
-    BaggageETA[Baggage ETA]
-    Commerce[AR Commerce]
-    Sustainability[Eco Platform]
-    Analytics[Analytics Engine]
-    Notification[Notification Service]
+    UserMgmt[User Management 🛡️]
+    FlightInfo[Flight Information 🛡️]
+    GenAI[GenAI Concierge 🛡️]
+    Wayfinding[AR Wayfinding 🛡️]
+    BaggageETA[Baggage ETA 🛡️]
+    Commerce[AR Commerce 🛡️]
+    Sustainability[Eco Platform 🛡️]
+    Analytics[Analytics Engine 🛡️]
+    Notification[Notification Service 🛡️]
+    GovOrchestrator[Governance Orchestrator 🛡️]
   end
 
   %% Data Layer
   subgraph "Data Layer"
-    PostgreSQL[(PostgreSQL Cluster)]
-    MongoDB[(MongoDB Replica Set)]
-    Redis[(Redis Cluster)]
-    S3[(S3 Data Lake)]
-    ClickHouse[(ClickHouse Analytics)]
-    Kafka[(Apache Kafka)]
-    Elasticsearch[(Elasticsearch)]
+    PostgreSQL[("PostgreSQL Cluster<br/>+Governance Schema")]
+    MongoDB[("MongoDB Replica Set<br/>+Audit Logs")]
+    Redis[("Redis Cluster<br/>+Governance Cache")]
+    S3[("S3 Data Lake<br/>+Lineage Tracking")]
+    ClickHouse[("ClickHouse Analytics<br/>+Governance Metrics")]
+    Kafka[("Apache Kafka<br/>+Governance Events")]
+    Elasticsearch[("Elasticsearch<br/>+Governance Search")]
   end
 
   %% Infrastructure Layer
   subgraph "Infrastructure"
     K8s[Kubernetes EKS]
-    Istio[Service Mesh]
-    Prometheus[Monitoring]
+    Istio[Service Mesh + Governance]
+    Prometheus[Monitoring + Governance]
     Vault[HashiCorp Vault]
     CDN[CloudFront CDN]
+  end
+
+  %% Governance Layer
+  subgraph "AI Governance Platform"
+    GovDashboard[Executive Dashboard]
+    BiasMonitor[Bias Detection]
+    ComplianceEngine[Compliance Automation]
+    AuditEngine[Audit & Assurance]
+    LineageTracker[Data Lineage]
   end
 
   %% Failover Region
   subgraph "AWS Region B (DR)"
     APIGW2[API Gateway Replica]
     Services2[Core Services Replica]
-    Data2[(Data Replicas)]
+    Data2[("Data Replicas")]
+    GovReplica[Governance Replica]
   end
 
   %% Connections
@@ -144,7 +161,8 @@ flowchart TB
   XR --> ARRender
   
   EdgeLB --> APIGW
-  APIGW --> Auth
+  APIGW --> GovMiddleware
+  GovMiddleware --> Auth
   APIGW --> UserMgmt
   APIGW --> FlightInfo
   APIGW --> GenAI
@@ -154,6 +172,10 @@ flowchart TB
   FlightInfo --> MongoDB
   GenAI --> Redis
   Commerce --> PostgreSQL
+  
+  GovOrchestrator --> GovDashboard
+  GovOrchestrator --> BiasMonitor
+  GovOrchestrator --> ComplianceEngine
   
   Kafka --> S3
   S3 --> Analytics
@@ -166,15 +188,20 @@ flowchart TB
   Weather --> FlightInfo
   ATC --> FlightInfo
   
+  %% Governance Integration
+  GovOrchestrator -.->|Monitors| UserMgmt
+  GovOrchestrator -.->|Monitors| GenAI
+  GovOrchestrator -.->|Monitors| Commerce
+  
   %% Failover
   APIGW -.->|Failover| APIGW2
   PostgreSQL -.->|Replication| Data2
+  GovOrchestrator -.->|Failover| GovReplica
   
   %% Monitoring
   Prometheus --> K8s
   Vault --> Auth
 ```
-
 ### Data Flow Architecture
 
 ```mermaid
@@ -186,13 +213,15 @@ flowchart LR
     Airlines[Airline APIs]
     Airports[Airport Systems]
     External[External APIs]
+    GovSources[Governance Sources]
   end
 
   %% Ingestion Layer
   subgraph "Data Ingestion"
-    APIGateway[API Gateway]
+    APIGateway[API Gateway + Governance]
     EventHub[Event Hub]
     StreamProcessor[Stream Processor]
+    GovIngestion[Governance Data Ingestion]
   end
 
   %% Processing Layer
@@ -200,22 +229,26 @@ flowchart LR
     Kafka[Apache Kafka]
     Flink[Apache Flink]
     Storm[Apache Storm]
+    GovProcessor[Governance Stream Processor]
   end
 
   %% Storage Layer
   subgraph "Data Storage"
-    Lake[S3 Data Lake]
-    Warehouse[Data Warehouse]
-    Cache[Redis Cache]
-    Search[Elasticsearch]
+    Lake[S3 Data Lake + Lineage]
+    Warehouse[Data Warehouse + Governance]
+    Cache[Redis Cache + Governance]
+    Search[Elasticsearch + Governance]
+    GovStore[Governance Data Store]
   end
 
   %% Analytics Layer
-  subgraph "Analytics & ML"
+  subgraph "Analytics & ML + Governance"
     Spark[Apache Spark]
-    SageMaker[AWS SageMaker]
-    Glue[AWS Glue]
+    SageMaker[AWS SageMaker + Governance]
+    Glue[AWS Glue + Lineage]
     QuickSight[AWS QuickSight]
+    GovAnalytics[Governance Analytics]
+    BiasDetection[Real-time Bias Detection]
   end
 
   %% Output Layer
@@ -224,6 +257,8 @@ flowchart LR
     APIs[API Responses]
     Notifications[Push Notifications]
     Reports[Business Reports]
+    GovDashboard[Governance Dashboard]
+    ComplianceReports[Compliance Reports]
   end
 
   %% Connections
@@ -232,27 +267,32 @@ flowchart LR
   Airlines --> StreamProcessor
   Airports --> StreamProcessor
   External --> APIGateway
+  GovSources --> GovIngestion
 
   APIGateway --> Kafka
   EventHub --> Kafka
   StreamProcessor --> Kafka
+  GovIngestion --> GovProcessor
 
   Kafka --> Flink
   Flink --> Lake
   Flink --> Cache
   Flink --> Search
+  GovProcessor --> GovStore
 
   Lake --> Spark
   Spark --> SageMaker
   Lake --> Glue
   Glue --> Warehouse
+  GovStore --> GovAnalytics
 
   Cache --> APIs
   Search --> Dashboards
   SageMaker --> Notifications
   Warehouse --> Reports
+  GovAnalytics --> GovDashboard
+  BiasDetection --> ComplianceReports
 ```
-
 ### Technology Stack Summary
 
 | Layer | Primary Technologies | Backup/Failover |
