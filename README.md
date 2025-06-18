@@ -121,7 +121,7 @@ AeroFusionXR/
 
 
 ---
-### **Overall Platform Architecture**
+### **Overall Project Flow**
 
 ```mermaid
 graph TB
@@ -368,7 +368,201 @@ graph TB
     classDef Pine stroke-width:1px, stroke-dasharray:none, stroke:#254336, fill:#27654A, color:#FFFFFF
 
 ```
+```mermaid
+sequenceDiagram
+    participant U as 👤 Passenger
+    participant MA as 📱 Mobile App
+    participant CDN as 🌐 CloudFront CDN
+    participant Kong as 🛡️ Kong API Gateway
+    participant Gov as 🎯 Governance Orchestrator
+    participant Auth as 🔐 Auth Service
+    participant User as 👤 User Service
+    participant GenAI as 🤖 GenAI Concierge
+    participant Way as 🗺️ Wayfinding Service
+    participant Flight as ✈️ Flight Info Service
+    participant Commerce as 🛒 Commerce Service
+    participant Pay as 💳 Payment Service
+    participant Notify as 📢 Notification Service
+    participant Redis as 🔴 Redis Cache
+    participant PG as 🐘 PostgreSQL
+    participant Mongo as 🍃 MongoDB
+    participant Kafka as 📨 Kafka
+    participant Analytics as 📊 Analytics Service
 
+    Note over U,Analytics: 🚀 Complete AeroFusionXR User Journey with AI Governance
+
+    %% User Authentication Flow
+    rect rgb(240, 248, 255)
+        Note over U,Auth: 🔐 Authentication & Authorization
+        U->>+MA: Opens AeroFusionXR App
+        MA->>+CDN: Request App Assets
+        CDN-->>-MA: Return Cached Assets
+        MA->>+Kong: POST /auth/login (credentials)
+        Kong->>+Gov: Validate Auth Request
+        Gov-->>-Kong: ✅ Approved (<50ms)
+        Kong->>+Auth: Authenticate User
+        Auth->>+PG: Query User Credentials
+        PG-->>-Auth: Return User Data
+        Auth-->>-Kong: JWT Token + User Profile
+        Kong-->>-MA: 200 OK + JWT + Profile
+        MA-->>-U: Welcome Dashboard
+    end
+
+    %% Profile & Preferences Loading
+    rect rgb(240, 255, 240)
+        Note over U,User: 👤 Profile & Personalization
+        MA->>+Kong: GET /user/profile (JWT)
+        Kong->>+Gov: Validate User Access
+        Gov-->>-Kong: ✅ Approved (GDPR Compliant)
+        Kong->>+User: Get User Profile & Preferences
+        User->>+Redis: Check Cache
+        Redis-->>-User: Cache Miss
+        User->>+PG: Query User Data
+        PG-->>-User: User Profile + Preferences
+        User->>Redis: Cache User Data (TTL: 1h)
+        User-->>-Kong: User Profile + AI Preferences
+        Kong-->>-MA: 200 OK + Complete Profile
+        MA->>U: Personalized Interface
+    end
+
+    %% Flight Information Request
+    rect rgb(255, 248, 240)
+        Note over U,Flight: ✈️ Flight Information & Updates
+        U->>+MA: Request "My Flights"
+        MA->>+Kong: GET /flights/user/{id}
+        Kong->>+Gov: Validate Flight Access
+        Gov->>Analytics: Log Request for Bias Analysis
+        Gov-->>-Kong: ✅ Approved + Bias Score: 0.02
+        Kong->>+Flight: Get User Flights
+        Flight->>+Mongo: Query Flight Database
+        Mongo-->>-Flight: Flight Data + Real-time Status
+        Flight->>+Kafka: Publish Flight Access Event
+        Flight-->>-Kong: Flight List + Live Updates
+        Kong-->>-MA: 200 OK + Real-time Flight Data
+        MA-->>-U: Flight Dashboard + Live Updates
+    end
+
+    %% GenAI Concierge Interaction
+    rect rgb(255, 240, 255)
+        Note over U,GenAI: 🤖 AI Concierge Interaction
+        U->>+MA: "Help me find Gate B12"
+        MA->>+Kong: POST /ai/chat (message, context)
+        Kong->>+Gov: Validate AI Request
+        Gov->>Analytics: Check AI Usage Patterns
+        Gov-->>-Kong: ✅ Approved + Safety Score: 0.98
+        Kong->>+GenAI: Process Chat Request
+        GenAI->>+Redis: Get Conversation Context
+        Redis-->>-GenAI: Previous Context
+        GenAI->>+Way: Get Route to Gate B12
+        Way->>+Mongo: Query Airport Layout
+        Mongo-->>-Way: Route Data + AR Waypoints
+        Way-->>-GenAI: Optimal Route + AR Instructions
+        GenAI->>+Gov: Submit Response for Bias Check
+        Gov-->>-GenAI: ✅ Response Approved (Bias: 0.01)
+        GenAI->>Redis: Update Conversation Context
+        GenAI-->>-Kong: AI Response + AR Route
+        Kong-->>-MA: 200 OK + Chat Response + AR Data
+        MA-->>-U: AI Response + AR Navigation
+    end
+
+    %% AR Wayfinding Experience
+    rect rgb(240, 255, 255)
+        Note over U,Way: 🥽 AR Wayfinding Experience
+        U->>+MA: Activate AR Navigation
+        MA->>+Kong: GET /ar/wayfinding (location, destination)
+        Kong->>+Gov: Validate AR Request
+        Gov-->>-Kong: ✅ Approved + Privacy Compliance
+        Kong->>+Way: Generate AR Route
+        Way->>+Redis: Get Cached Route Data
+        Redis-->>-Way: Route Cache Hit
+        Way->>+Analytics: Log AR Usage
+        Way-->>-Kong: AR Route + 3D Waypoints
+        Kong-->>-MA: 200 OK + AR Navigation Data
+        MA-->>-U: AR Overlay + Turn-by-turn
+        
+        loop Every 10 seconds
+            MA->>Kong: POST /ar/location (GPS coordinates)
+            Kong->>Way: Update User Location
+            Way->>Analytics: Track AR Performance
+            Way-->>Kong: Route Adjustments
+            Kong-->>MA: Updated AR Instructions
+        end
+    end
+
+    %% Commerce & Shopping
+    rect rgb(255, 255, 240)
+        Note over U,Commerce: 🛒 Commerce & Shopping Experience
+        U->>+MA: Browse Airport Shops
+        MA->>+Kong: GET /commerce/shops (location)
+        Kong->>+Gov: Validate Commerce Access
+        Gov-->>-Kong: ✅ Approved + Personalization OK
+        Kong->>+Commerce: Get Nearby Shops + Recommendations
+        Commerce->>+GenAI: Get Personalized Recommendations
+        GenAI->>+Redis: Get User Preferences
+        Redis-->>-GenAI: Shopping History + Preferences
+        GenAI-->>-Commerce: Personalized Shop List
+        Commerce->>+Mongo: Query Shop Inventory
+        Mongo-->>-Commerce: Available Products + Prices
+        Commerce-->>-Kong: Shop List + Recommendations
+        Kong-->>-MA: 200 OK + Personalized Shops
+        MA-->>-U: Shop Recommendations + AR Overlay
+        
+        U->>+MA: Purchase Coffee ($4.50)
+        MA->>+Kong: POST /commerce/purchase (item, amount)
+        Kong->>+Gov: Validate Purchase Request
+        Gov-->>-Kong: ✅ Approved + Fraud Score: 0.01
+        Kong->>+Commerce: Process Purchase
+        Commerce->>+Pay: Charge Payment Method
+        Pay->>+PG: Record Transaction
+        PG-->>-Pay: Transaction Recorded
+        Pay-->>-Commerce: Payment Successful
+        Commerce->>+Notify: Send Purchase Confirmation
+        Commerce->>+Kafka: Publish Purchase Event
+        Commerce-->>-Kong: Purchase Complete
+        Kong-->>-MA: 201 Created + Receipt
+        MA-->>-U: Purchase Confirmation + Receipt
+    end
+
+    %% Real-time Notifications
+    rect rgb(255, 240, 240)
+        Note over U,Notify: 📢 Real-time Notifications
+        Note over Kafka,Analytics: Flight Delay Detected by External System
+        Kafka->>+Flight: Flight Delay Event
+        Flight->>+Mongo: Update Flight Status
+        Mongo-->>-Flight: Status Updated
+        Flight->>+Notify: Trigger User Notification
+        Notify->>+Gov: Validate Notification Content
+        Gov-->>-Notify: ✅ Content Approved
+        Notify->>+Redis: Get User Device Tokens
+        Redis-->>-Notify: Push Tokens
+        Notify->>MA: Push Notification (Flight Delayed)
+        Notify->>+Analytics: Log Notification Sent
+        Analytics-->>-Notify: Logged
+        MA->>U: 🔔 "Flight AA123 delayed 30 minutes"
+    end
+
+    %% Governance & Analytics Monitoring
+    rect rgb(248, 248, 255)
+        Note over Gov,Analytics: 🛡️ Continuous Governance & Analytics
+        loop Every minute
+            Gov->>+Analytics: Request Health Check Data
+            Analytics->>+Kafka: Query Event Streams
+            Kafka-->>-Analytics: Real-time Metrics
+            Analytics->>+Redis: Get Performance Data
+            Redis-->>-Analytics: System Metrics
+            Analytics-->>-Gov: 15-Pillar Health Report
+            Gov->>Gov: Update Health Scores
+            Note over Gov: All Pillars: 90.1% Avg Health
+        end
+        
+        Gov->>+Analytics: Generate Executive Report
+        Analytics->>+PG: Query Business Metrics
+        PG-->>-Analytics: KPI Data
+        Analytics-->>-Gov: ROI: 13,750% | Risk Saved: $2.1B
+    end
+
+    Note over U,Analytics: ✅ Journey Complete: Governed, Secure, Personalized Experience
+```
 ---
 ### **Service Mesh Architecture**
 
