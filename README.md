@@ -98,6 +98,7 @@ AeroFusionXR/
 ├─ clients/             # mobile/, web/, xr/
 ├─ ai/                  # prompts/, models/, utils/
 ├─ data/                # static datasets, migrations
+├─ governance/          # AI Governance
 ├─ analytics/           # ETL & dashboards
 ├─ tests/               # unit, integration, e2e, performance, security
 ├─ devops/              # CI/CD, monitoring, patch mgmt
