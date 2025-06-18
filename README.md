@@ -368,6 +368,7 @@ graph TB
     classDef Pine stroke-width:1px, stroke-dasharray:none, stroke:#254336, fill:#27654A, color:#FFFFFF
 
 ```
+### Sequence diagram - User Journey with All System Interactions
 ```mermaid
 sequenceDiagram
     participant U as 👤 Passenger
@@ -564,85 +565,234 @@ sequenceDiagram
     Note over U,Analytics: ✅ Journey Complete: Governed, Secure, Personalized Experience
 ```
 ---
-### **Service Mesh Architecture**
-
+### Data Flow Diagram - Complete Platform Data Movement
 ```mermaid
 flowchart LR
- subgraph subGraph0["AI Services"]
-        AI["AI Concierge"]
-        NLP["NLP Engine"]
-        CV["Computer Vision"]
+  %% Data Sources
+  subgraph "📊 DATA SOURCES"
+    subgraph "👥 User Inputs"
+      MobileInput["📱 Mobile Apps<br/>User Interactions<br/>Location Data"]
+      WebInput["🌐 Web Portal<br/>Booking Requests<br/>Preferences"]
+      XRInput["🥽 XR/AR Devices<br/>Spatial Data<br/>Gesture Tracking"]
+      KioskInput["🖥️ Kiosks<br/>Touch Interactions<br/>Check-ins"]
+    end
+    
+    subgraph "🌐 External Systems"
+      PSS["✈️ Amadeus PSS<br/>Flight Schedules<br/>Seat Availability"]
+      ATC["🗼 ATC Systems<br/>Flight Status<br/>Delays/Gates"]
+      Weather["🌤️ Weather APIs<br/>Conditions<br/>Forecasts"]
+      Loyalty["🎁 Loyalty Programs<br/>Points & Status<br/>Benefits"]
+      Payment["💳 Payment Systems<br/>Transactions<br/>Validation"]
+    end
+    
+    subgraph "🔧 IoT & Sensors"
+      Beacons["📡 Airport Beacons<br/>Location Signals<br/>Proximity Data"]
+      Sensors["📟 IoT Sensors<br/>Crowd Density<br/>Equipment Status"]
+      Cameras["📹 Security Cameras<br/>Crowd Analytics<br/>Safety Monitoring"]
+    end
+    
+    subgraph "🛡️ Governance Sources"
+      GovEvents["⚡ Governance Events<br/>Policy Changes<br/>Compliance Updates"]
+      AuditLogs["📋 Audit Logs<br/>User Actions<br/>System Events"]
+      BiasReports["🎯 Bias Reports<br/>ML Model Performance<br/>Fairness Metrics"]
+    end
   end
- subgraph subGraph1["Business Services"]
-        FLIGHT["Flight Info"]
-        BAG["Baggage Tracker"]
-        WAY["Wayfinding"]
-        COM["Commerce"]
-        BOOK["Booking"]
-  end
- subgraph subGraph2["Platform Services"]
-        MODEL["Model Registry"]
-        FEATURE["Feature Store"]
-        AUTH["Authentication"]
-        NOTIFY["Notifications"]
-  end
- subgraph subGraph3["Service Mesh (Istio)"]
-        subGraph0
-        subGraph1
-        subGraph2
-  end
- subgraph subGraph4["External Integrations"]
-        AIRLINES["Airlines APIs"]
-        PAYMENT["Payment Gateways"]
-        AIRPORT["Airport Systems"]
-        WEATHER["Weather APIs"]
-  end
-    AI --> NLP & CV & MODEL & WEATHER
-    BAG --> CV
-    WAY --> MODEL & AIRPORT
-    FLIGHT --> AIRLINES
-    COM --> PAYMENT
-    AUTH --> AI & FLIGHT & BAG & WAY & COM & BOOK
-     AI:::RenoirPink
-     NLP:::RenoirPink
-     CV:::RenoirPink
-     FLIGHT:::VanGoghYellow
-     BAG:::VanGoghYellow
-     WAY:::VanGoghYellow
-     COM:::VanGoghYellow
-     BOOK:::VanGoghYellow
-     MODEL:::DegasGreen
-     FEATURE:::DegasGreen
-     AUTH:::DegasGreen
-     NOTIFY:::DegasGreen
-     AIRLINES:::MonetBlue
-     PAYMENT:::MonetBlue
-     AIRPORT:::MonetBlue
-     WEATHER:::MonetBlue
-    classDef Sky stroke-width:1px, stroke-dasharray:none, stroke:#374D7C, fill:#E2EBFF, color:#374D7C
-    classDef KlimtGold stroke-width:1px, stroke-dasharray:none, stroke:#D4A017, fill:#FBF2C1, color:#705A16
-    classDef Aqua stroke-width:1px, stroke-dasharray:none, stroke:#46EDC8, fill:#DEFFF8, color:#378E7A
-    classDef Peach stroke-width:1px, stroke-dasharray:none, stroke:#FBB35A, fill:#FFEFDB, color:#8F632D
-    classDef TurnerMist stroke-width:1px, stroke-dasharray:none, stroke:#B8C4D1, fill:#EAF2F8, color:#4A5B6F
-    classDef CezannePeach stroke-width:1px, stroke-dasharray:none, stroke:#E2A07D, fill:#FBE7DA, color:#6D4532
-    classDef PicassoBlue stroke-width:1px, stroke-dasharray:none, stroke:#5A84A2, fill:#CDE0F2, color:#2D4661
-    classDef Rose stroke-width:1px, stroke-dasharray:none, stroke:#FF5978, fill:#FFDFE5, color:#8E2236
-    classDef MatisseLavender stroke-width:1px, stroke-dasharray:none, stroke:#B39DBC, fill:#ECE3F5, color:#4E3A5E
-    classDef HokusaiWave stroke-width:1px, stroke-dasharray:none, stroke:#6188A9, fill:#D4E8F2, color:#2A425D
-    classDef Ash stroke-width:1px, stroke-dasharray:none, stroke:#999999, fill:#EEEEEE, color:#000000
-    classDef Pine stroke-width:1px, stroke-dasharray:none, stroke:#254336, fill:#27654A, color:#FFFFFF
-    classDef MonetBlue stroke-width:1px, stroke-dasharray:none, stroke:#87AFC7, fill:#D4EAF7, color:#30577B
-    classDef VanGoghYellow stroke-width:1px, stroke-dasharray:none, stroke:#E3B448, fill:#FDF6C9, color:#7D5A17
-    classDef DegasGreen stroke-width:1px, stroke-dasharray:none, stroke:#A7C796, fill:#E6F4E2, color:#3E6A42
-    classDef RenoirPink stroke-width:1px, stroke-dasharray:none, stroke:#E4A0A0, fill:#FBE5E5, color:#7D3E3E
-    style subGraph0 fill:transparent
-    style subGraph1 fill:transparent
-    style subGraph2 fill:transparent
-    style subGraph4 fill:transparent
-    style subGraph3 fill:transparent
 
+  %% Data Ingestion Layer
+  subgraph "🚪 DATA INGESTION LAYER"
+    subgraph "🌐 API Gateway Layer"
+      Kong["🛡️ Kong API Gateway<br/>+ Governance Middleware<br/>100k req/min"]
+      GraphQL["📊 GraphQL Apollo<br/>Unified Data Access<br/>Real-time Subscriptions"]
+      WebSocket["⚡ WebSocket Gateway<br/>Real-time Updates<br/>Bi-directional"]
+    end
+    
+    subgraph "📨 Event Streaming"
+      EventHub["📬 Event Hub<br/>High Throughput<br/>Event Routing"]
+      StreamProcessor["⚡ Stream Processor<br/>Real-time Processing<br/>Event Transformation"]
+    end
+    
+    subgraph "🛡️ Governance Ingestion"
+      GovIngestion["🎯 Governance Data Ingestion<br/>Policy Validation<br/>Compliance Checking"]
+      BiasIngestion["📊 Bias Data Ingestion<br/>Model Monitoring<br/>Performance Tracking"]
+    end
+  end
 
+  %% Real-time Processing
+  subgraph "⚡ REAL-TIME PROCESSING LAYER"
+    subgraph "📨 Message Streaming"
+      Kafka["📨 Apache Kafka<br/>Event Streaming<br/>26+ Topics"]
+      KafkaConnect["🔌 Kafka Connect<br/>Source/Sink Connectors<br/>External System Integration"]
+    end
+    
+    subgraph "🔄 Stream Processing"
+      Flink["🌊 Apache Flink<br/>Complex Event Processing<br/>Window Operations"]
+      Storm["⛈️ Apache Storm<br/>Real-time Analytics<br/>Topology Processing"]
+      SparkStreaming["⚡ Spark Streaming<br/>Micro-batch Processing<br/>ML Pipeline"]
+    end
+    
+    subgraph "🛡️ Governance Processing"
+      GovProcessor["🎯 Governance Stream Processor<br/>Real-time Policy Enforcement<br/><50ms Decision Time"]
+      BiasProcessor["📊 Bias Detection Engine<br/>ML Model Monitoring<br/>Drift Detection"]
+      ComplianceProcessor["📋 Compliance Processor<br/>Regulatory Validation<br/>99.7% Automation"]
+    end
+  end
 
+  %% Data Storage Layer
+  subgraph "💾 DATA STORAGE LAYER"
+    subgraph "🗄️ Operational Databases"
+      PostgreSQL["🐘 PostgreSQL Cluster<br/>+ Governance Schema<br/>ACID Transactions"]
+      MongoDB["🍃 MongoDB Replica Set<br/>+ Audit Collections<br/>Document Storage"]
+      Redis["🔴 Redis Cluster<br/>+ Governance Cache<br/>Sub-ms Access"]
+    end
+    
+    subgraph "📊 Analytics Databases"
+      ClickHouse["⚡ ClickHouse<br/>+ Governance Metrics<br/>Columnar Analytics"]
+      S3DataLake["☁️ S3 Data Lake<br/>+ Data Lineage<br/>Petabyte Scale"]
+      Elasticsearch["🔍 Elasticsearch<br/>+ Governance Search<br/>Full-text Indexing"]
+    end
+    
+    subgraph "🛡️ Governance Storage"
+      GovDataStore["🎯 Governance Data Store<br/>Policy Repository<br/>Compliance Records"]
+      AuditStore["📋 Audit Data Store<br/>Immutable Logs<br/>Forensic Analysis"]
+      LineageStore["🔗 Lineage Store<br/>Data Provenance<br/>Impact Analysis"]
+    end
+  end
+
+  %% Analytics & ML Layer
+  subgraph "🧠 ANALYTICS & ML LAYER"
+    subgraph "📈 Batch Analytics"
+      Spark["⚡ Apache Spark<br/>Large-scale Processing<br/>ML Pipelines"]
+      Glue["🔗 AWS Glue<br/>ETL Workflows<br/>Data Cataloging"]
+      EMR["🏔️ AWS EMR<br/>Hadoop Ecosystem<br/>Distributed Computing"]
+    end
+    
+    subgraph "🤖 Machine Learning"
+      SageMaker["🧠 AWS SageMaker<br/>+ Governance Integration<br/>Model Training/Serving"]
+      MLFlow["📊 MLFlow<br/>Experiment Tracking<br/>Model Registry"]
+      FeatureStore["🏪 Feature Store<br/>Feature Management<br/>Reusability"]
+    end
+    
+    subgraph "🛡️ Governance Analytics"
+      GovAnalytics["🎯 Governance Analytics Engine<br/>15-Pillar Health Scoring<br/>ROI Calculation"]
+      BiasAnalytics["📊 Bias Analytics<br/>Fairness Metrics<br/>Model Performance"]
+      ComplianceAnalytics["📋 Compliance Analytics<br/>Regulatory Reporting<br/>Risk Assessment"]
+    end
+  end
+
+  %% Data Consumption Layer
+  subgraph "📤 DATA CONSUMPTION LAYER"
+    subgraph "🖥️ Real-time Dashboards"
+      ExecDashboard["👔 Executive Dashboard<br/>Governance Health<br/>Business KPIs"]
+      OpsDashboard["⚙️ Operations Dashboard<br/>System Health<br/>Performance Metrics"]
+      UserDashboard["👤 User Dashboard<br/>Personalized Views<br/>Real-time Updates"]
+    end
+    
+    subgraph "📱 Application APIs"
+      RestAPIs["🌐 REST APIs<br/>Mobile/Web Apps<br/>Third-party Integration"]
+      GraphQLAPIs["📊 GraphQL APIs<br/>Flexible Queries<br/>Real-time Subscriptions"]
+      StreamingAPIs["⚡ Streaming APIs<br/>Live Data Feeds<br/>Event Notifications"]
+    end
+    
+    subgraph "📢 Notifications & Alerts"
+      PushNotifications["📱 Push Notifications<br/>Flight Updates<br/>Personalized Alerts"]
+      EmailReports["📧 Email Reports<br/>Business Intelligence<br/>Compliance Reports"]
+      SMSAlerts["📟 SMS Alerts<br/>Critical Updates<br/>Emergency Notifications"]
+    end
+    
+    subgraph "🛡️ Governance Outputs"
+      ComplianceReports["📋 Compliance Reports<br/>Regulatory Submissions<br/>Audit Evidence"]
+      GovernanceDashboard["🎯 Governance Dashboard<br/>Pillar Health<br/>Risk Metrics"]
+      PolicyRecommendations["💡 Policy Recommendations<br/>Adaptive Learning<br/>Continuous Improvement"]
+    end
+  end
+
+  %% Main Data Flow Connections
+  
+  %% Sources to Ingestion
+  MobileInput --> Kong
+  WebInput --> Kong
+  XRInput --> Kong
+  KioskInput --> Kong
+  PSS --> EventHub
+  ATC --> StreamProcessor
+  Weather --> EventHub
+  Loyalty --> Kong
+  Payment --> Kong
+  Beacons --> EventHub
+  Sensors --> StreamProcessor
+  Cameras --> EventHub
+  GovEvents --> GovIngestion
+  AuditLogs --> GovIngestion
+  BiasReports --> BiasIngestion
+  
+  %% Ingestion to Processing
+  Kong --> Kafka
+  GraphQL --> Kafka
+  WebSocket --> Kafka
+  EventHub --> Kafka
+  StreamProcessor --> Kafka
+  GovIngestion --> GovProcessor
+  BiasIngestion --> BiasProcessor
+  
+  %% Processing Layer
+  Kafka --> Flink
+  Kafka --> Storm
+  Kafka --> SparkStreaming
+  KafkaConnect --> Flink
+  GovProcessor --> ComplianceProcessor
+  BiasProcessor --> GovProcessor
+  
+  %% Processing to Storage
+  Flink --> PostgreSQL
+  Flink --> MongoDB
+  Flink --> Redis
+  Storm --> ClickHouse
+  SparkStreaming --> S3DataLake
+  Flink --> Elasticsearch
+  GovProcessor --> GovDataStore
+  ComplianceProcessor --> AuditStore
+  Flink --> LineageStore
+  
+  %% Storage to Analytics
+  S3DataLake --> Spark
+  PostgreSQL --> Glue
+  MongoDB --> EMR
+  ClickHouse --> SageMaker
+  GovDataStore --> GovAnalytics
+  AuditStore --> BiasAnalytics
+  LineageStore --> ComplianceAnalytics
+  
+  %% Analytics to ML
+  Spark --> SageMaker
+  Glue --> MLFlow
+  EMR --> FeatureStore
+  GovAnalytics --> BiasAnalytics
+  BiasAnalytics --> ComplianceAnalytics
+  
+  %% Storage to Consumption
+  Redis --> RestAPIs
+  PostgreSQL --> GraphQLAPIs
+  Elasticsearch --> StreamingAPIs
+  ClickHouse --> ExecDashboard
+  MongoDB --> OpsDashboard
+  Redis --> UserDashboard
+  
+  %% ML to Consumption
+  SageMaker --> RestAPIs
+  MLFlow --> GraphQLAPIs
+  FeatureStore --> StreamingAPIs
+  
+  %% Governance to Consumption
+  GovDataStore --> GovernanceDashboard
+  ComplianceAnalytics --> ComplianceReports
+  BiasAnalytics --> PolicyRecommendations
+  
+  %% Consumption to Notifications
+  RestAPIs --> PushNotifications
+  GraphQLAPIs --> EmailReports
+  StreamingAPIs --> SMSAlerts
+  ComplianceReports --> EmailReports
+  GovernanceDashboard --> PushNotifications
 ```
 ---
 ### 🧪 Testing & Quality Gates
