@@ -873,6 +873,23 @@ flowchart LR
   class RestAPIs,GraphQLAPIs,StreamingAPIs Aqua
   class PushNotifications,EmailReports,SMSAlerts MatisseLavender
   class ComplianceReports,GovernanceDashboard,PolicyRecommendations Rose
+
+  style subGraph11 fill:transparent
+  style subGraph12 fill:transparent
+  style subGraph13 fill:transparent
+  style subGraph14 fill:transparent
+  style subGraph15 fill:transparent
+  style subGraph16 fill:transparent
+  style subGraph17 fill:transparent
+  style subGraph18 fill:transparent
+  style subGraph19 fill:transparent
+  style subGraph20 fill:transparent
+  style subGraph21 fill:transparent
+  style subGraph22 fill:transparent
+  style subGraph23 fill:transparent
+  style subGraph24 fill:transparent
+
+  
 ```
 ---
 ### 🧪 Testing & Quality Gates
