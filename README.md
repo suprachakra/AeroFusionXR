@@ -874,6 +874,14 @@ flowchart LR
   class PushNotifications,EmailReports,SMSAlerts MatisseLavender
   class ComplianceReports,GovernanceDashboard,PolicyRecommendations Rose
 
+  style subGraph3 fill:transparent
+  style subGraph4 fill:transparent
+  style subGraph5 fill:transparent
+  style subGraph6 fill:transparent
+  style subGraph7 fill:transparent
+  style subGraph8 fill:transparent
+  style subGraph9 fill:transparent
+  style subGraph10 fill:transparent
   style subGraph11 fill:transparent
   style subGraph12 fill:transparent
   style subGraph13 fill:transparent
