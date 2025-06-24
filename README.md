@@ -290,7 +290,7 @@ graph TB
 * **Cloud & Infra**: AWS (EKS/ECS, RDS, S3, Kinesis, Bedrock, CloudHSM) + Terraform & Helm
 * **Backend**: Node.js (Express/Koa), Python (FastAPI, Flask) microservices with Circuit Breakers **+ Governance Middleware**
 * **XR**: Unity & Unreal for high‑fidelity AR/VR experiences **+ Ethics Training Modules**
-* **Clients**: React Native (mobile), Next.js PWA (web), XR packages **with Governance-Aware UI**
+* **Clients**: React Native (mobile), Nextjs PWA (web), XR packages **with Governance-Aware UI**
 * **AI/ML**: LangChain, LLMs (OpenAI/GPT, Bedrock), Vector DB (Pinecone), **real-time bias & drift detectors (96.2% accuracy)**
 * **AI Governance**: **15-pillar framework**, policy engine (<20ms evaluation), audit trails, risk intelligence, quantum-safe protocols
 * **Data & Analytics**: Airflow ETL, Superset dashboards, blockchain provenance for immutability **+ Governance Graph (Neo4j)**
