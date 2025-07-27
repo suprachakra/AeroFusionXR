@@ -301,63 +301,6 @@ graph TB
 
 ---
 
-### 🚀 Getting Started
-
-### Prerequisites
-
-* **Git** ≥ 2.25
-* **Node.js** ≥ 18 & **npm** ≥ 8
-* **Python** ≥ 3.10
-* **Docker** & **Docker Compose**
-* **Terraform** ≥ 1.4
-* Access to AWS account with IAM permissions
-
-### Environment Variables
-
-Copy and populate:
-
-```bash
-cp .env.example .env
-# Edit .env with AWS credentials, DB URI, Pinecone key, Bedrock endpoint, etc.
-```
-
-### Installation
-
-```bash
-git clone https://github.com/your-org/AeroFusionXR.git
-cd AeroFusionXR
-# Bootstrap infra (dev)
-./infrastructure/scripts/bootstrap.sh
-# Install client deps
-yarn --cwd clients/web install
-yarn --cwd clients/mobile install
-pip install -r services/ai-concierge/requirements.txt
-```
-
-### Running Locally
-
-1. **Backend** (API Gateway + services):
-
-   ```bash
-   docker-compose up -d api-gateway flight-info booking ai-concierge baggage-tracker wayfinding commerce
-   ```
-2. **Web**:
-
-   ```bash
-   yarn --cwd clients/web dev
-   ```
-3. **Mobile**:
-```bash
-yarn --cwd clients/mobile start
-# Run on simulator or device
-````
-4. **XR Demos**:
-
-   * Unity: Open `clients/xr/unity/` in Unity Editor and press Play.
-   * Unreal: Launch Unreal project in Editor.
-
----
-
 ### 📂 Project Structure
 
 ```
@@ -894,6 +837,62 @@ flowchart LR
     style subGraph23 fill:transparent
     style subGraph24 fill:transparent  
 ```
+---
+
+### 🚀 Getting Started
+
+### Prerequisites
+
+* **Git** ≥ 2.25
+* **Node.js** ≥ 18 & **npm** ≥ 8
+* **Python** ≥ 3.10
+* **Docker** & **Docker Compose**
+* **Terraform** ≥ 1.4
+* Access to AWS account with IAM permissions
+
+### Environment Variables
+
+Copy and populate:
+
+```bash
+cp .env.example .env
+# Edit .env with AWS credentials, DB URI, Pinecone key, Bedrock endpoint, etc.
+```
+
+### Installation
+
+```bash
+git clone https://github.com/your-org/AeroFusionXR.git
+cd AeroFusionXR
+# Bootstrap infra (dev)
+./infrastructure/scripts/bootstrap.sh
+# Install client deps
+yarn --cwd clients/web install
+yarn --cwd clients/mobile install
+pip install -r services/ai-concierge/requirements.txt
+```
+
+### Running Locally
+
+1. **Backend** (API Gateway + services):
+
+   ```bash
+   docker-compose up -d api-gateway flight-info booking ai-concierge baggage-tracker wayfinding commerce
+   ```
+2. **Web**:
+
+   ```bash
+   yarn --cwd clients/web dev
+   ```
+3. **Mobile**:
+```bash
+yarn --cwd clients/mobile start
+# Run on simulator or device
+````
+4. **XR Demos**:
+
+   * Unity: Open `clients/xr/unity/` in Unity Editor and press Play.
+   * Unreal: Launch Unreal project in Editor.
 ---
 ### 🧪 Testing & Quality Gates
 
