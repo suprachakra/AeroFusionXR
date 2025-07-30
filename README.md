@@ -891,8 +891,8 @@ yarn --cwd clients/mobile start
 ````
 4. **XR Demos**:
 
-   * Unity: Open `clients/xr/unity/` in Unity Editor and press Play.
-   * Unreal: Launch Unreal project in Editor.
+   * Unity: Open `clients/xr/unity/` in Unity Editor and press Play
+   * Unreal: Launch Unreal project in Editor
 ---
 ### 🧪 Testing & Quality Gates
 
