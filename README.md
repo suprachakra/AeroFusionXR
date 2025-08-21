@@ -900,7 +900,7 @@ yarn --cwd clients/mobile start
 * **Test Coverage**: ≥ 90% enforced + Governance Coverage ≥ 95%
 * **E2E**: Detox/Appium (mobile), Playwright (web), XR device-farm integration + Governance E2E scenarios
 * **Perf**: Locust load tests; AR latency < 20 ms + Governance policy evaluation < 20ms
-* **Governance Testing**: Bias detection accuracy ≥ 94%, policy compliance 100% and audit trail integrity
+* **Governance Testing**: Bias detection accuracy ≥ 94%, policy compliance 100% & audit trail integrity
 
 
 ---
