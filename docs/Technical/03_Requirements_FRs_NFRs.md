@@ -1,7 +1,7 @@
 # Requirements FRs & NFRs
 *Functional and Non-Functional Requirements (performance, security, compliance)*
 
-This document enumerates all **Functional Requirements (FR)**, **Non-Functional Requirements (NFR)** and **FR & NFR Coverage for Epics** in AerofusionXR. Each requirement includes **Acceptance Criteria**, **Risks & Mitigation**, **Departmental Checks**, and **Priority** to ensure no loopholes and end-to-end accountability.
+This document enumerates all **Functional Requirements (FR)**, **Non-Functional Requirements (NFR)** and **FR & NFR Coverage for Epics** in AerofusionXR. Each requirement includes **Acceptance Criteria**, **Risks & Mitigation**, **Departmental Checks**, and **Priority** to ensure no loopholes, end-to-end accountability.
 
 ---
 
