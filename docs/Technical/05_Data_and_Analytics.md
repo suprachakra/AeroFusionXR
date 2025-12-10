@@ -5,7 +5,7 @@ Comprehensive end-to-end data lifecycle: ingestion from multiple sources, granul
 ### 1. Executive Summary
 
 * Ingest data from **User Clients**, **Partner APIs**, **On-Prem Edge Nodes**, and **System Logs**.
-* Raw data stored in **S3 Ingestion Zone**, then **Validated** and **Processed** through a microservices-based ETL orchestrator (preferring Kubernetes-native Argo Workflows over Airflow for cloud-native resilience).
+* Raw data stored in **S3 Ingestion Zone**, then **Validated** and **Processed** through microservices-based ETL orchestrator (preferring Kubernetes-native Argo Workflows over Airflow for cloud-native resilience).
 * Curated analytics tables in **Snowflake**, visualized via **Superset**, **Looker**, and **Grafana**.
 * Provenance logged immutably to **Hedera Ledger** with local fallback.
 
